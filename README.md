@@ -1,3 +1,15 @@
+# Fork Description
+
+This is a fork for a final project for cs339 at Williams College. We intent to use a DHT to modify this system so that one's site does not need to be locally hosted, but rather is hosted somewhere in the network as determined by the DHT. THis allows for users to not need a persistant connection to the network to remain running. encrypted orders will be stored by others and then can be read by the owner of the site when they do connect. Community incentives, such as favorable rates with escrow figures and better reviews or ratings, could be associated with uptime and the amount of data that they are hosting so that there is an incentive for users to be connected when possible. Replication is also crucial with the ability to update and synchronize a site in respone to cnahges from its owner.
+
+We intent to use the Entangled inplementation of the Kademlia DHT design, which runs on the Twisted library.
+
+Entangled: http://entangled.sourceforge.net
+Kademlia Specs: http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html#replication
+Twisted: https://twistedmatrix.com/trac/
+
+==============
+
 OpenBazaar is a decentralized marketplace proof of concept. It is based off of the POC code by the darkmarket team and protected by the GPL.
 
 See a demonstration of the Proof Of Concept here: https://www.youtube.com/watch?v=lHVqH8XO1Pk#t=86

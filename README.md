@@ -10,6 +10,24 @@ Twisted: https://twistedmatrix.com/trac/
 
 ==============
 
+## Project folder purposes
+
+- ecdsa: 
+- html: contains the actual website that the service uses, including a basic index.html and all the supporting files
+- ident:
+- msig: sx test files for playing with multisig. folder contains README with a link for more info
+- node: contains the files that run the node on the client
+ - files here handle all server interactions and communication with the outside world
+- obelisk:
+- ppl: Contains information on other users in the market. each other user has their own file with nickname, keypair, and description.
+ - uncertain as to who's private key is stored for each. our's to communicate with them? Are they just test users?
+- pyelliptic: 
+- shop: Contains the files for the user's website and homepage within the marketplace
+- test: Contains code to test certain encryption functionality
+- util: Contains a single file for bitcoin keypair generation. 
+
+==============
+
 OpenBazaar is a decentralized marketplace proof of concept. It is based off of the POC code by the darkmarket team and protected by the GPL.
 
 See a demonstration of the Proof Of Concept here: https://www.youtube.com/watch?v=lHVqH8XO1Pk#t=86

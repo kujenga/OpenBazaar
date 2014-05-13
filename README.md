@@ -12,7 +12,7 @@ Twisted: https://twistedmatrix.com/trac/
 
 ## Project folder purposes
 
-- ecdsa: 
+- ecdsa: elliptic curve cryptography resources
 - html: contains the actual website that the service uses, including a basic index.html and all the supporting files
 - ident:
 - msig: sx test files for playing with multisig. folder contains README with a link for more info
@@ -63,9 +63,15 @@ These instructions download a VirtualBox image (Ubuntu Trusty) and use Vagrant t
 
     `sudo apt-get install virtualbox git vagrant`
 
-#### Our machines are not "trusty"
+#### Our machines are not "Trusty"
 
- need to run:
+ VirtualBox installation:
+
+      `wget http://download.virtualbox.org/virtualbox/4.3.10/virtualbox-4.3_4.3.10-93012~Ubuntu~precise_i386.deb`
+
+      `sudo dpkg -i virtualbox-4.3_4.3.10-93012~Ubuntu~precise_i386.deb`
+
+ Vagrant Installation:
 
       `wget --no-check-certificate https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.2_i686.deb`
 

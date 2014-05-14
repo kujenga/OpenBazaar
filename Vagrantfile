@@ -15,11 +15,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "shell", inline: <<-SCRIPT
     apt-get update
-    apt-get install -y build-essential python-dev python-pip python-zmq mongodb
-    pip install tornado Twisted
-    easy_install pymongo websocket
-    cp -R /vagrant/ecdsa /vagrant/pyelliptic /vagrant/obelisk /usr/local/lib/python2.7/dist-packages/
-    mongo --eval "db = db.getSiblingDB('openbazaar')"
+    apt-get install -y build-essential python-dev python-pip python-zmq
+    pip install pyelliptic tornado Twisted
   SCRIPT
 
   # Create a private network, which allows host-only access to the machine
@@ -28,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine.
-  config.vm.network "forwarded_port", guest: 8888, host: 8888
+  config.vm.network "forwarded_port", guest: 8765, host: 8765
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.

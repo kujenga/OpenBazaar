@@ -4,9 +4,9 @@ This is a fork for a final project for cs339 at Williams College. We intent to u
 
 We intend to use the Entangled inplementation of the Kademlia DHT design, which runs on the Twisted library.
 
-Entangled: http://entangled.sourceforge.net
-Kademlia Specs: http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html#replication
-Twisted: https://twistedmatrix.com/trac/
+- Entangled: http://entangled.sourceforge.net
+- Kademlia Specs: http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html#replication
+- Twisted: https://twistedmatrix.com/trac/
 
 ==============
 

@@ -1,0 +1,1100 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>entangled.kademlia.node.Node</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="entangled-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://entangled.sourceforge.net">Entangled</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="entangled-module.html">Package&nbsp;entangled</a> ::
+        <a href="entangled.kademlia-module.html">Package&nbsp;kademlia</a> ::
+        <a href="entangled.kademlia.node-module.html">Module&nbsp;node</a> ::
+        Class&nbsp;Node
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="entangled.kademlia.node.Node-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class Node</h1><p class="nomargin-top"><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node">source&nbsp;code</a></span></p>
+<pre class="base-tree">
+object --+
+         |
+        <strong class="uidshort">Node</strong>
+</pre>
+
+<dl><dt>Known Subclasses:</dt>
+<dd>
+      <ul class="subclass-list">
+<li><a href="entangled.node.EntangledNode-class.html">node.EntangledNode</a></li>  </ul>
+</dd></dl>
+
+<hr />
+<p>Local node in the Kademlia network</p>
+  <p>This class represents a single local node in a Kademlia network; in 
+  other words, this class encapsulates an Entangled-using application's 
+  &quot;presence&quot; in a Kademlia network.</p>
+  <p>In Entangled, all interactions with the Kademlia network by a client 
+  application is performed via this class (or a subclass).</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">udpPort</span>=<span class="summary-sig-default">4000</span>,
+        <span class="summary-sig-arg">dataStore</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">routingTable</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">networkProtocol</span>=<span class="summary-sig-default">None</span>)</span><br />
+      x.__init__(...) initializes x; see help(type(x)) for signature</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__del__"></a><span class="summary-sig-name">__del__</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.__del__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#joinNetwork" class="summary-sig-name">joinNetwork</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">knownNodeAddresses</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Causes the Node to join the Kademlia network; normally, this should 
+      be called before any other DHT operations.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.joinNetwork">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="printContacts"></a><span class="summary-sig-name">printContacts</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.printContacts">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#iterativeStore" class="summary-sig-name">iterativeStore</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">value</span>,
+        <span class="summary-sig-arg">originalPublisherID</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">age</span>=<span class="summary-sig-default">0</span>)</span><br />
+      The Kademlia store operation</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.iterativeStore">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">twisted.internet.defer.Deferred</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#iterativeFindNode" class="summary-sig-name">iterativeFindNode</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>)</span><br />
+      The basic Kademlia node lookup operation</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.iterativeFindNode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">twisted.internet.defer.Deferred</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#iterativeFindValue" class="summary-sig-name">iterativeFindValue</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>)</span><br />
+      The Kademlia search operation (deterministic)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.iterativeFindValue">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#addContact" class="summary-sig-name">addContact</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">contact</span>)</span><br />
+      Add/update the given contact; simple wrapper for the same method in 
+      this object's RoutingTable object</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.addContact">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#removeContact" class="summary-sig-name">removeContact</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">contactID</span>)</span><br />
+      Remove the contact with the specified node ID from this node's table 
+      of known nodes.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.removeContact">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">twisted.internet.defer.Deferred</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#findContact" class="summary-sig-name">findContact</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">contactID</span>)</span><br />
+      Find a entangled.kademlia.contact.Contact object for the specified 
+      cotact ID</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.findContact">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">str</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#ping" class="summary-sig-name">ping</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Used to verify contact between two Kademlia nodes</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.ping">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">str</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#store" class="summary-sig-name">store</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">value</span>,
+        <span class="summary-sig-arg">originalPublisherID</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">age</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Store the received data in this node's local hash table</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.store">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">list</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#findNode" class="summary-sig-name">findNode</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Finds a number of known nodes closest to the node/value with the 
+      specified key.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.findNode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">dict or list</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#findValue" class="summary-sig-name">findValue</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Return the value associated with the specified key if present in this
+      node's data, otherwise execute FIND_NODE for the key</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.findValue">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">str</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#_generateID" class="summary-sig-name" onclick="show_private();">_generateID</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Generates a 160-bit pseudo-random identifier</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._generateID">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">twisted.internet.defer.Deferred</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#_iterativeFind" class="summary-sig-name" onclick="show_private();">_iterativeFind</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">startupShortlist</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">rpc</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">findNode</code><code class="variable-quote">'</code></span>)</span><br />
+      The basic Kademlia iterative lookup operation (for nodes/values)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._iterativeFind">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_persistState"></a><span class="summary-sig-name">_persistState</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">*args</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._persistState">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_refreshNode"></a><span class="summary-sig-name">_refreshNode</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Periodically called to perform k-bucket refreshes and data 
+      replication/republishing as necessary</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._refreshNode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_refreshRoutingTable"></a><span class="summary-sig-name">_refreshRoutingTable</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._refreshRoutingTable">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_republishData"></a><span class="summary-sig-name">_republishData</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">*args</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._republishData">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_scheduleNextNodeRefresh"></a><span class="summary-sig-name">_scheduleNextNodeRefresh</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">*args</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._scheduleNextNodeRefresh">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="entangled.kademlia.node.Node-class.html#_threadedRepublishData" class="summary-sig-name" onclick="show_private();">_threadedRepublishData</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">*args</span>)</span><br />
+      Republishes and expires any stored data (i.e.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._threadedRepublishData">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">udpPort</span>=<span class="sig-default">4000</span>,
+        <span class="sig-arg">dataStore</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">routingTable</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">networkProtocol</span>=<span class="sig-default">None</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>dataStore</code></strong> (entangled.kademlia.datastore.DataStore) - The data store to use. This must be class inheriting from the 
+          <code>DataStore</code> interface (or providing the same API). How
+          the data store manages its data internally is up to the 
+          implementation of that data store.</li>
+        <li><strong class="pname"><code>routingTable</code></strong> (entangled.kademlia.routingtable.RoutingTable) - The routing table to use. Since there exists some ambiguity as to
+          how the routing table should be implemented in Kademlia, a 
+          different routing table may be used, as long as the appropriate 
+          API is exposed.</li>
+        <li><strong class="pname"><code>networkProtocol</code></strong> (entangled.kademlia.protocol.KademliaProtocol) - The network protocol to use. This can be overridden from the 
+          default to (for example) change the format of the physical RPC 
+          messages being transmitted.</li>
+    </ul></dd>
+    <dt>Overrides:
+        object.__init__
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="joinNetwork"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">joinNetwork</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">knownNodeAddresses</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.joinNetwork">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Causes the Node to join the Kademlia network; normally, this should be
+  called before any other DHT operations.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>knownNodeAddresses</code></strong> (tuple) - A sequence of tuples containing IP address information for 
+          existing nodes on the Kademlia network, in the format: 
+          <code>(&lt;ip address&gt;, (udp port&gt;)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="iterativeStore"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">iterativeStore</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>,
+        <span class="sig-arg">value</span>,
+        <span class="sig-arg">originalPublisherID</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">age</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.iterativeStore">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>The Kademlia store operation</p>
+  <p>Call this to store/republish data in the DHT.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> (str) - The hashtable key of the data</li>
+        <li><strong class="pname"><code>value</code></strong> (str) - The actual data (the value associated with <code>key</code>)</li>
+        <li><strong class="pname"><code>originalPublisherID</code></strong> (str) - The node ID of the node that is the <b>original</b> publisher of 
+          the data</li>
+        <li><strong class="pname"><code>age</code></strong> (int) - The relative age of the data (time in seconds since it was 
+          originally published). Note that the original publish time isn't 
+          actually given, to compensate for clock skew between different 
+          nodes.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="iterativeFindNode"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">iterativeFindNode</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.iterativeFindNode">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>The basic Kademlia node lookup operation</p>
+  <p>Call this to find a remote node in the P2P overlay network.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> (str) - the 160-bit key (i.e. the node or value ID) to search for</li>
+    </ul></dd>
+    <dt>Returns: twisted.internet.defer.Deferred</dt>
+        <dd>This immediately returns a deferred object, which will return a 
+          list of k &quot;closest&quot; contacts 
+          (<code>kademlia.contact.Contact</code> objects) to the specified 
+          key as soon as the operation is finished.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="iterativeFindValue"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">iterativeFindValue</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.iterativeFindValue">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>The Kademlia search operation (deterministic)</p>
+  <p>Call this to retrieve data from the DHT.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> (str) - the 160-bit key (i.e. the value ID) to search for</li>
+    </ul></dd>
+    <dt>Returns: twisted.internet.defer.Deferred</dt>
+        <dd>This immediately returns a deferred object, which will return 
+          either one of two things:
+          <ul>
+            <li>
+              If the value was found, it will return a Python dictionary 
+              containing the searched-for key (the <code>key</code> 
+              parameter passed to this method), and its associated value, 
+              in the format: <code>&lt;str&gt;key: 
+              &lt;str&gt;data_value</code>
+            </li>
+            <li>
+              If the value was not found, it will return a list of k 
+              &quot;closest&quot; contacts 
+              (<code>kademlia.contact.Contact</code> objects) to the 
+              specified key
+            </li>
+          </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="addContact"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">addContact</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">contact</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.addContact">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Add/update the given contact; simple wrapper for the same method in 
+  this object's RoutingTable object</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>contact</code></strong> (kademlia.contact.Contact) - The contact to add to this node's k-buckets</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="removeContact"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">removeContact</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">contactID</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.removeContact">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Remove the contact with the specified node ID from this node's table 
+  of known nodes. This is a simple wrapper for the same method in this 
+  object's RoutingTable object</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>contactID</code></strong> (str) - The node ID of the contact to remove</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="findContact"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">findContact</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">contactID</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.findContact">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Find a entangled.kademlia.contact.Contact object for the specified 
+  cotact ID</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>contactID</code></strong> (str) - The contact ID of the required Contact object</li>
+    </ul></dd>
+    <dt>Returns: twisted.internet.defer.Deferred</dt>
+        <dd>Contact object of remote node with the specified node ID</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ping"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ping</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.ping">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Used to verify contact between two Kademlia nodes</p>
+  <dl class="fields">
+    <dt>Returns: str</dt>
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@rpcmethod</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="store"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">store</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>,
+        <span class="sig-arg">value</span>,
+        <span class="sig-arg">originalPublisherID</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">age</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.store">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Store the received data in this node's local hash table</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> (str) - The hashtable key of the data</li>
+        <li><strong class="pname"><code>value</code></strong> (str) - The actual data (the value associated with <code>key</code>)</li>
+        <li><strong class="pname"><code>originalPublisherID</code></strong> (str) - The node ID of the node that is the <b>original</b> publisher of 
+          the data</li>
+        <li><strong class="pname"><code>age</code></strong> (int) - The relative age of the data (time in seconds since it was 
+          originally published). Note that the original publish time isn't 
+          actually given, to compensate for clock skew between different 
+          nodes.</li>
+    </ul></dd>
+    <dt>Returns: str</dt>
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@rpcmethod</code></li>
+    </ul></dd>
+  </dl>
+<div class="fields">      <p><strong>To Do:</strong>
+        Since the data (value) may be large, passing it around as a buffer 
+    (which is the case currently) might not be a good idea... will have to 
+    fix this (perhaps use a stream from the Protocol class?)
+      </p>
+</div></td></tr></table>
+</div>
+<a name="findNode"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">findNode</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.findNode">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Finds a number of known nodes closest to the node/value with the 
+  specified key.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> (str) - the 160-bit key (i.e. the node or value ID) to search for</li>
+    </ul></dd>
+    <dt>Returns: list</dt>
+        <dd>A list of contact triples closest to the specified key. This 
+          method will return <code>k</code> (or <code>count</code>, if 
+          specified) contacts if at all possible; it will only return fewer
+          if the node is returning all of the contacts that it knows of.</dd>
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@rpcmethod</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="findValue"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">findValue</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node.findValue">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return the value associated with the specified key if present in this 
+  node's data, otherwise execute FIND_NODE for the key</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> (str) - The hashtable key of the data to return</li>
+    </ul></dd>
+    <dt>Returns: dict or list</dt>
+        <dd>A dictionary containing the requested key/value pair, or a list 
+          of contact triples closest to the requested key.</dd>
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@rpcmethod</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_generateID"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_generateID</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._generateID">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Generates a 160-bit pseudo-random identifier</p>
+  <dl class="fields">
+    <dt>Returns: str</dt>
+        <dd>A globally unique 160-bit pseudo-random identifier</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_iterativeFind"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_iterativeFind</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">key</span>,
+        <span class="sig-arg">startupShortlist</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">rpc</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">findNode</code><code class="variable-quote">'</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._iterativeFind">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>The basic Kademlia iterative lookup operation (for nodes/values)</p>
+  <p>This builds a list of k &quot;closest&quot; contacts through iterative
+  use of the &quot;FIND_NODE&quot; RPC, or if <code>findValue</code> is set
+  to <code>True</code>, using the &quot;FIND_VALUE&quot; RPC, in which case
+  the value (if found) may be returned instead of a list of contacts</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>key</code></strong> (str) - the 160-bit key (i.e. the node or value ID) to search for</li>
+        <li><strong class="pname"><code>startupShortlist</code></strong> (list) - A list of contacts to use as the starting shortlist for this 
+          search; this is normally only used when the node joins the 
+          network</li>
+        <li><strong class="pname"><code>rpc</code></strong> (str) - The name of the RPC to issue to remote nodes during the Kademlia 
+          lookup operation (e.g. this sets whether this algorithm should 
+          search for a data value (if rpc='findValue') or not. It can thus 
+          be used to perform other operations that piggy-back on the basic 
+          Kademlia lookup operation (Entangled's &quot;delete&quot; RPC, 
+          for instance).</li>
+    </ul></dd>
+    <dt>Returns: twisted.internet.defer.Deferred</dt>
+        <dd>If <code>findValue</code> is <code>True</code>, the algorithm 
+          will stop as soon as a data value for <code>key</code> is found, 
+          and return a dictionary containing the key and the found value. 
+          Otherwise, it will return a list of the k closest nodes to the 
+          specified key</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_threadedRepublishData"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_threadedRepublishData</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">*args</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="entangled.kademlia.node-pysrc.html#Node._threadedRepublishData">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Republishes and expires any stored data (i.e. stored <code>(key, value
+  pairs)</code> that need to be republished/expired</p>
+  <p>This method should run in a deferred thread</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="entangled-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://entangled.sourceforge.net">Entangled</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Wed May 14 15:25:03 2014
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

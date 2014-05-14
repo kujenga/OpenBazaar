@@ -136,6 +136,8 @@ class TreeRoutingTable(RoutingTable):
         @param contact: The contact to add to this node's k-buckets
         @type contact: kademlia.contact.Contact
         """
+		
+		# a node can't add itself to its own routing table
         if contact.id == self._parentNodeID:
             return
 
@@ -156,7 +158,9 @@ class TreeRoutingTable(RoutingTable):
                 # it states that the head contact in the k-bucket (i.e. the least-recently seen node)
                 # should be pinged - if it does not reply, it should be dropped, and the new contact
                 # added to the tail of the k-bucket. This implementation follows section 2.2 regarding
-                # this point.            
+                # this point.
+
+				# the least-recently seen node is at the head (i=0) of our contact list
                 headContact = self._buckets[bucketIndex]._contacts[0]
     
                 def replaceContact(failure):
@@ -177,7 +181,7 @@ class TreeRoutingTable(RoutingTable):
                     # ...and add the new one at the tail of the bucket
                     self.addContact(contact)
                 
-                # Ping the least-recently seen contact in this k-bucket
+                # Ping the least-recently seen contact entangled.kademlia.node in this k-bucket
                 headContact = self._buckets[bucketIndex]._contacts[0]
                 df = headContact.ping()
                 # If there's an error (i.e. timeout), remove the head contact, and append the new one

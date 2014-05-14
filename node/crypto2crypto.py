@@ -34,6 +34,8 @@ class CryptoTransportLayer(TransportLayer):
         TransportLayer.__init__(self, my_ip, my_port)
         self._myself = ec.ECC(curve='secp256k1')
         self.nick_mapping = {}
+
+		# load nickname, secret and pubkey from store_file, which is a JSON file in ppl
         self.nickname, self.secret, self.pubkey = \
             self.load_crypto_details(store_file)
         self._log = logging.getLogger(self.__class__.__name__)

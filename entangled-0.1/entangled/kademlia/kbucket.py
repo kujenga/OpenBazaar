@@ -26,6 +26,8 @@ class KBucket(object):
         self.lastAccessed = 0
         self.rangeMin = rangeMin
         self.rangeMax = rangeMax
+
+		# A list of entangled.kademlia.node
         self._contacts = list()
 
     def addContact(self, contact):

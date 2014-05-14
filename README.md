@@ -63,20 +63,6 @@ These instructions download a VirtualBox image (Ubuntu Trusty) and use Vagrant t
 
     `sudo apt-get install virtualbox git vagrant`
 
-#### Our machines are not "Trusty"
-
- VirtualBox installation:
-
-      `wget http://download.virtualbox.org/virtualbox/4.3.10/virtualbox-4.3_4.3.10-93012~Ubuntu~precise_i386.deb`
-
-      `sudo dpkg -i virtualbox-4.3_4.3.10-93012~Ubuntu~precise_i386.deb`
-
- Vagrant Installation:
-
-      `wget --no-check-certificate https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.2_i686.deb`
-
-      `sudo dpkg -i vagrant_1.6.2_i686.deb`
-
 2. clone openbazaar:
 
     `git clone https://github.com/kujenga/OpenBazaar.git`

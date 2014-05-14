@@ -86,6 +86,12 @@ These instructions download a VirtualBox image (Ubuntu Trusty) and use Vagrant t
     `http://127.0.0.1:8888`
 
 
+## Less Quick Start (no vagrant)
+
+run the configure.sh file
+
+
+
 ## Dependencies
 
 **NOTE:** These dependencies are for reference, they do not need to be manually installed if the Quick Start guide is used.

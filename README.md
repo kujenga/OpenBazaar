@@ -53,7 +53,7 @@ We are continually on IRC chat at #OpenBazaar on Freenode
 
 All features are currently in alpha stage. Current functionality includes starting a connection to the distributed marketplace and viewing content in a browser. Transactions are not possible.
 
-## Quick Start
+## Vagrant Quick Start
 
 These instructions download a VirtualBox image (Ubuntu Trusty) and use Vagrant to configure an OpenBazaar node inside the virtual environment. When the node is running, you can navigate to http://localhost:8888 on your local machine to access the client. This setup should take less than 10GB and about an hour. These instructions should include all necessary code for starting OpenBazaar.
 
@@ -86,11 +86,13 @@ These instructions download a VirtualBox image (Ubuntu Trusty) and use Vagrant t
     `http://127.0.0.1:8888`
 
 
-## Less Quick Start (no vagrant)
+## Amazon EC2 nodes Quick Start (no vagrant)
 
-run the configure.sh file
+Make sure that the machine is running Ubuntu 12.04 with `lsb_release -d`
 
+run `./configure.sh` which is included in the repository
 
+When the prcess is completed, try to perform `./run_dev.sh` and look to see what if any errors occur. If errors do occur, compare them with the different stages of the configure.sh file to see what might have gone wrong.
 
 ## Dependencies
 

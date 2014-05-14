@@ -3,9 +3,6 @@
 mkdir ~/install
 cd ~/install
 
-curl -O https://bootstrap.pypa.io/get-pip.py
-python get-pip.py
-
 git clone https://github.com/warner/python-ecdsa
 cd python-ecdsa
 sudo python setup.py install
@@ -23,7 +20,7 @@ sudo apt-get install g++
 
 wget http://download.zeromq.org/zeromq-4.0.4.tar.gz
 tar -xvf zeromq-4.0.4.tar.gz
-cd zeromq-4.0.4.tar.gz
+cd zeromq-4.0.4
 ./configure
 sudo make install
 sudo ldconfig
@@ -35,6 +32,9 @@ sudo apt-get update
 sudo apt-get install mongodb-org
 
 sudo apt-get install build-essential python-dev
+
+wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
 
 sudo pip install pyzmq
 sudo pip install tornado

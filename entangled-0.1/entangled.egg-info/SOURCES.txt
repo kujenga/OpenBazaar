@@ -4,6 +4,7 @@ AUTHORS
 COPYING
 ChangeLog
 README
+setup.cfg
 setup.py
 doc/uml_diagrams.xmi
 entangled/__init__.py

@@ -107,10 +107,23 @@ class Market(object):
         nickname = data["nickname"]
         desc = data["desc"]
 
+        # unnecessary as instance variables with the DHT usage
         tagline = "%s: %s" % (nickname, desc)
         self.mypage = tagline
         self.nickname = nickname
         self.signature = self._transport._myself.sign(tagline)
+
+        # callback functons for DHT input
+        def data_published(result = None):
+            self._log.info("DHT publish result: " + result)
+        def publish_err(error = None):
+            self._log.info("DHT publish error: " + error)
+        # publish local site into the DHT
+        page_data = proto_page(self._transport._myself.get_pubkey(),
+                                        self.mypage, self.signature,
+                                        self.nickname)
+        deferred = self.node.publishData(tagline,page_data)
+        deferred.addCallbacks(data_published, errback = publish_err)
 
         self._log.info("Tagline signature: " + self.signature.encode("hex"))
 
@@ -140,7 +153,7 @@ class Market(object):
 
     def on_page(self, page):
         self._log.info("Page returned: " + str(page))
-
+z
         pubkey = page.get('pubkey')
         page = page.get('text')
 

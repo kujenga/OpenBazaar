@@ -14,9 +14,9 @@ fi
 
 $PYTHON node/tornadoloop.py ppl/novaprospekt 127.0.0.1  &
 sleep 1
-$PYTHON node/tornadoloop.py ppl/genjix 127.0.0.2 tcp://127.0.0.1:12345  &
+$PYTHON node/tornadoloop.py ppl/genjix 127.0.0.2 -s tcp://127.0.0.1:12345  &
 sleep 1
-$PYTHON node/tornadoloop.py ppl/default 127.0.0.3 tcp://127.0.0.1:12345  &
+$PYTHON node/tornadoloop.py ppl/default 127.0.0.3 -s tcp://127.0.0.1:12345  &
 sleep 1
-$PYTHON node/tornadoloop.py ppl/s_tec 127.0.0.4 tcp://127.0.0.1:12345  &
+$PYTHON node/tornadoloop.py ppl/s_tec 127.0.0.4 -s tcp://127.0.0.1:12345  &
 

@@ -19,13 +19,18 @@ class MainHandler(tornado.web.RequestHandler):
 
 class MarketApplication(tornado.web.Application):
 
-    def __init__(self, store_file, my_market_ip, my_market_port, seed_uri):
+    def __init__(self, store_file, my_market_ip, my_market_port, my_node_port, seed_uri):
 
         self.transport = CryptoTransportLayer(my_market_ip,
                                               my_market_port,
                                               store_file)
         self.transport.join_network(seed_uri)
-        self.market = Market(self.transport)
+        dataStore = SQLiteDataStore('../shop/sites.sqlite')
+        # TODO: need a way to cache these persistently and load them each time
+        knownNodes = [()]
+        self.node = entangled.node.EntangledNode(udpPort=my_node_port, dataStore=dataStore)
+        node.joinNetwork(knownNodes)
+        self.market = Market(self.transport,self.node)
 
         handlers = [
             (r"/", MainHandler),
@@ -51,6 +56,7 @@ if __name__ == "__main__":
                                 crypto file in `ppl/` folder")
     parser.add_argument("my_market_ip")
     parser.add_argument("-p", "--my_market_port", type=int, default=12345)
+    parser.add_argument("-n", "--my_node_port", type = int, default=54321)
     parser.add_argument("-s", "--seed_uri")
     parser.add_argument("-l", "--log_file", default='node.log')
     args = parser.parse_args()
@@ -61,7 +67,7 @@ if __name__ == "__main__":
                         filename=args.log_file)
 
     application = MarketApplication(args.store_file, args.my_market_ip,
-                                    args.my_market_port, args.seed_uri)
+                                    args.my_market_port, args.my_node_port, args.seed_uri)
 
     error = True
     port = 8888

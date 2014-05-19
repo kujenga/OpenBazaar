@@ -8,10 +8,19 @@ import lookup
 from pymongo import MongoClient
 import logging
 
+# for entangled implementation
+from twisted.internet import defer
+from twisted.internet.protocol import Protocol, ServerFactory, ClientCreator
+
+import hashlib
+
+import entangled.node
+from entangled.kademlia.datastore import SQLiteDataStore
+
 
 class Market(object):
 
-    def __init__(self, transport):
+    def __init__(self, transport, node):
 
         self._log = logging.getLogger(self.__class__.__name__)
         self._log.info("Initializing")
@@ -43,11 +52,20 @@ class Market(object):
         transport.add_callback('negotiate_pubkey', self.on_negotiate_pubkey)
         transport.add_callback('proto_response_pubkey', self.on_response_pubkey)
 
+        # store Entangled node for replication in the network
+        self.node = node
+
         self.load_page()
 
         # Send Market Shout
         transport.send(shout({'text': 'Market Initialized'}))
 
+
+##########################################################################
+# continue implementing the use of the Entangled node from this point
+##########################################################################
+
+    # returns a public key for a given nickname
     def lookup(self, msg):
 
         if self.query_ident is None:
@@ -75,6 +93,7 @@ class Market(object):
         self._transport.send(protocol.negotiate_pubkey(nickname, key))
 
     # Load default information for your market from your file
+    # here could be a good place to load your file into the DHT ***************************************************
     def load_page(self):
 
         self._log.info("Loading market config from " + sys.argv[1])
@@ -115,6 +134,7 @@ class Market(object):
 
     # PAGE QUERYING
 
+    # Alter these significantly to use the DHT *****************************************************************
     def query_page(self, pubkey):
         self._transport.send(query_page(pubkey))
 
@@ -128,6 +148,8 @@ class Market(object):
             self.pages[pubkey] = page
 
     # Return your page info if someone requests it on the network
+
+    # this will be unnecessary when the DHT is implemented ----------------------------------------------------
     def on_query_page(self, peer):
         self._log.info("Someone is querying for your page")
         self._transport.send(proto_page(self._transport._myself.get_pubkey(),
@@ -142,6 +164,8 @@ class Market(object):
 
     def on_peer(self, peer):
         pass
+
+    # may need to specifiy online vs. offline nodes for each site on the DHT.
 
     def on_negotiate_pubkey(self, ident_pubkey):
         self._log.info("Someone is asking for your real pubKey")

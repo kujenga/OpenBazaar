@@ -1,5 +1,7 @@
 # Fork Description
 
+Find the writeup [here](https://www.sharelatex.com/project/537a937be5aa09f53f0630a7?r=39f57a04&rs=ps&rm=d)  
+
 This is a fork for a final project for cs339 at Williams College. We intent to use a DHT to modify this system so that one's site does not need to be locally hosted, but rather is hosted somewhere in the network as determined by the DHT. THis allows for users to not need a persistant connection to the network to remain running. encrypted orders will be stored by others and then can be read by the owner of the site when they do connect. Community incentives, such as favorable rates with escrow figures and better reviews or ratings, could be associated with uptime and the amount of data that they are hosting so that there is an incentive for users to be connected when possible. Replication is also crucial with the ability to update and synchronize a site in respone to cnahges from its owner.
 
 We intend to use the Entangled inplementation of the Kademlia DHT design, which runs on the Twisted library.

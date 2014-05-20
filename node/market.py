@@ -114,7 +114,7 @@ class Market(object):
         self.signature = self._transport._myself.sign(tagline)
 
         # callback functons for DHT input
-        def data_published(result = None):
+        def publish_succ(result = None):
             self._log.info("DHT publish result: " + result)
         def publish_err(error = None):
             self._log.info("DHT publish error: " + error)
@@ -122,8 +122,10 @@ class Market(object):
         page_data = proto_page(self._transport._myself.get_pubkey(),
                                         self.mypage, self.signature,
                                         self.nickname)
+        # there is a disparity between this operation, where the key is a hashed tagline,
+        # and the query_page operation, where the key is the public key. using the public key is probably preferable
         deferred = self.node.publishData(tagline,page_data)
-        deferred.addCallbacks(data_published, errback = publish_err)
+        deferred.addCallbacks(publish_succ, errback = publish_err)
 
         self._log.info("Tagline signature: " + self.signature.encode("hex"))
 
@@ -147,13 +149,42 @@ class Market(object):
 
     # PAGE QUERYING
 
-    # Alter these significantly to use the DHT *****************************************************************
+    # Alter these significantly to use the DHT +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     def query_page(self, pubkey):
         self._transport.send(query_page(pubkey))
+        # prepares to queries page from the DHT
+
+        # callbacks for entangled node interactions
+        def getTargetNode(result):
+            # shouldn't we be able to get the node where it is stored, not the node that published it?
+            # site should be identified by tagline signature, not 
+            targetNodeID = result[key]
+            df = self.node.findContact(targetNodeID)
+            return df
+        def connectToPeer(contact):
+            if contact == None:
+                # this would indicate that we are not getting the desired behavior out of the DHT *****************************
+                # the publisher should be allowed to disconnect from the network
+                self._log.info("File could not be retrieved.\nThe host that published this file is no longer on-line.")
+            else:
+                # FileGetter class does not exist in this implmentation, need to either implement the twisted.internet.protocol.Protocol subclass or do this another way
+                c = ClientCreator(twisted.internet.reactor, FileGetter)
+                df = c.connectTCP(contact.address, contact.port)
+                return df
+        def getPage(protocol):
+            if protocol != None:
+                # this is a method specifically implemented in the Protocol subblass from the example. maybe create an analagous request_page operation?
+                protocol.requestFile(filename, self)
+        ### Hoping that the pubkeys can be used in Entangled. if not, use sha1 from hashlib to create an appropriate key
+        df = self.node.iterativeFindValue(pubkey)
+        df.addCallback(getTargetNode)
+        df.addCallback(connectToPeer)
+        df.addCallback(getPage)
+        
 
     def on_page(self, page):
         self._log.info("Page returned: " + str(page))
-z
+
         pubkey = page.get('pubkey')
         page = page.get('text')
 

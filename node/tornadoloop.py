@@ -26,7 +26,7 @@ class MarketApplication(tornado.web.Application):
                                               store_file)
         self.transport.join_network(seed_uri)
         dataStore = SQLiteDataStore('../shop/sites.sqlite')
-        # TODO: need a way to cache these persistently and load them each time
+        # TODO: need a way to cache these persistently and load them each time, cannot be empty
         knownNodes = [()]
         self.node = entangled.node.EntangledNode(udpPort=my_node_port, dataStore=dataStore)
         node.joinNetwork(knownNodes)

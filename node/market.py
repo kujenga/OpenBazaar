@@ -42,14 +42,15 @@ class Market(object):
         self.nicks = {}
         self.pages = {}
 
+        # assign Entangled Node to global
+	self.node = node
+
         # Connect to database
         MONGODB_URI = 'mongodb://localhost:27017'
         _dbclient = MongoClient()
         self._db = _dbclient.openbazaar
 
         self.settings = self._db.settings.find_one()
-
-
 
         welcome = True
 
@@ -66,7 +67,8 @@ class Market(object):
         transport.add_callback('proto_response_pubkey', self.on_response_pubkey)
 
         self.load_page(welcome)
-	self.node = node
+
+
     def generate_new_secret(self):
 
         key = bitcoin.EllipticCurveKey()
@@ -111,8 +113,8 @@ class Market(object):
 
         self._transport.send(protocol.negotiate_pubkey(nickname, key))
 
-	# Load default information for your market from your file
-	# loads your file in from the DHT *********************************************************
+
+    # Load default information for your market from your file
     def load_page(self, welcome):
 
         #self._log.info("Loading market config from %s." % self.store_file)
@@ -134,6 +136,7 @@ class Market(object):
         self.nickname = nickname
         self.signature = self._transport._myself.sign(tagline)
 
+	# loads your file in from the DHT *********************************************************
         # callback functons for DHT input
         def publish_succ(result):
             if (result != None):

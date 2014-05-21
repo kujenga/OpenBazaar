@@ -13,6 +13,10 @@ import signal
 import re
 import threading
 
+# for Entangled implementation
+import entangled.node
+from entangled.kademlia.datastore import SQLiteDataStore
+
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -25,7 +29,8 @@ class MarketApplication(tornado.web.Application):
 
         self.transport = CryptoTransportLayer(my_market_ip,
                                               my_market_port,
-                                              market_id)
+                                              market_id,
+                                              store_file)
         self.transport.join_network(seed_uri)
         # TODO: would be nice to have persistent data storage, create a database if one doesn't exist
         dataStore = SQLiteDataStore() #'/shop/sites.sqlite')
@@ -67,36 +72,14 @@ class MarketApplication(tornado.web.Application):
         return self.transport
 
 
-<<<<<<< HEAD
-# Run this if executed directly
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("store_file",
-                        help="You need to specify a user crypto file in `ppl/` folder")
-    parser.add_argument("my_market_ip",
-                        help="You need to specify an IP address for your market")
-    parser.add_argument("-p", "--my_market_port", type=int, default=12345)
-    parser.add_argument("-n", "--my_node_port", type=int, default=54321)
-    parser.add_argument("-f", "--my_node_file", default='shop/nodes')
-    parser.add_argument("-s", "--seed_uri")
-    parser.add_argument("-l", "--log_file", default='node.log')
-    args = parser.parse_args()
-
-=======
-def start_node(my_market_ip, my_market_port, seed_uri, log_file, userid):
->>>>>>> upstream/master
+def start_node(store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri, log_file, user_id):
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(name)s -  \
                                 %(levelname)s - %(message)s',
                         filename=log_file)
 
-<<<<<<< HEAD
-    application = MarketApplication(args.store_file, args.my_market_ip,
-                                    args.my_market_port, args.my_node_port, args.my_node_file, args.seed_uri)
-=======
-    application = MarketApplication(my_market_ip,
-                                    my_market_port, seed_uri, userid)
->>>>>>> upstream/master
+    application = MarketApplication(store_file, my_market_ip,
+                                    my_market_port, my_node_port, my_node_file, seed_uri, user_id)
 
     error = True
     port = 8888
@@ -122,14 +105,21 @@ def start_node(my_market_ip, my_market_port, seed_uri, log_file, userid):
 
     tornado.ioloop.IOLoop.instance().start()
 
+
 # Run this if executed directly
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("my_market_ip")
+    parser.add_argument("store_file",
+                        help="You need to specify a user crypto file in `ppl/` folder")
+    parser.add_argument("my_market_ip",
+                        help="You need to specify an IP address for your market")
     parser.add_argument("-p", "--my_market_port", type=int, default=12345)
+    parser.add_argument("-n", "--my_node_port", type=int, default=54321)
+    parser.add_argument("-f", "--my_node_file", default='shop/nodes')
     parser.add_argument("-s", "--seed_uri")
     parser.add_argument("-l", "--log_file", default='node.log')
     parser.add_argument("-u", "--userid", default=1)
     args = parser.parse_args()
-    start_node(args.my_market_ip,
-               args.my_market_port, args.seed_uri, args.log_file, args.userid)
+    start_node(args.store_file, args.my_market_ip,
+               args.my_market_port, args.my_node_port, args.my_node_file,
+               args.seed_uri, args.log_file, args.userid)

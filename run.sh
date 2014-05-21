@@ -30,45 +30,28 @@ if [ ! -d "$LOGDIR" ]; then
 fi
 
 if [ $MODE == production ]; then
-<<<<<<< HEAD
+
 	
-	$PYTHON node/tornadoloop.py $STOREFILE $MY_MARKET_IP -s $SEED_URI -p $MY_MARKET_PORT -n $MY_NODE_PORT -l $LOGDIR/node.log &
+    #$PYTHON node/tornadoloop.py $STOREFILE $MY_MARKET_IP -s $SEED_URI -p $MY_MARKET_PORT -n $MY_NODE_PORT -l $LOGDIR/node.log &
+  $PYTHON ident/identity.py &
+	$PYTHON node/tornadoloop.py $MY_MARKET_IP -s $SEED_URI -p $MY_MARKET_PORT -l $LOGDIR/node.log -u 1 &
 	
 else
 
 	# Primary Market - No SEED_URI specified 
-	$PYTHON node/tornadoloop.py $STOREFILE 127.0.0.1 -n $MY_NODE_PORT -l $LOGDIR/demo_node1.log &
+	$PYTHON node/tornadoloop.py $STOREFILE 127.0.0.1 -n $MY_NODE_PORT -f $MY_NODE_FILE -l $LOGDIR/demo_node1.log -u 1 &
 	
 	# Demo Peer Market
 	sleep 2
     STOREFILE2=ppl/s_tec
-	$PYTHON node/tornadoloop.py $STOREFILE2 127.0.0.2 -s tcp://127.0.0.1:$MY_MARKET_PORT -n 47772 -f $MY_NODE_FILE -l $LOGDIR/demo_node2.log &
+	$PYTHON node/tornadoloop.py $STOREFILE2 127.0.0.2 -s tcp://127.0.0.1:$MY_MARKET_PORT -n 47772 -f $MY_NODE_FILE -l $LOGDIR/demo_node2.log -u 2 &
 
 	sleep 2
     STOREFILE3=ppl/genjix
-	$PYTHON node/tornadoloop.py $STOREFILE3 127.0.0.3 -s tcp://127.0.0.1:$MY_MARKET_PORT -n 47773 -f $MY_NODE_FILE -l $LOGDIR/demo_node3.log &
+	$PYTHON node/tornadoloop.py $STOREFILE3 127.0.0.3 -s tcp://127.0.0.1:$MY_MARKET_PORT -n 47773 -f $MY_NODE_FILE -l $LOGDIR/demo_node3.log -u 3 &
 
 	sleep 2
     STOREFILE4=ppl/novaprospekt
-	$PYTHON node/tornadoloop.py $STOREFILE4 127.0.0.4 -s tcp://127.0.0.1:$MY_MARKET_PORT -n 47774 -f $MY_NODE_FILE -l $LOGDIR/demo_node4.log &
-=======
-
-  $PYTHON ident/identity.py &
-	$PYTHON node/tornadoloop.py $MY_MARKET_IP -s $SEED_URI -p $MY_MARKET_PORT -l $LOGDIR/node.log -u 1 &
-
-else
-
-	# Primary Market - No SEED_URI specified
-	$PYTHON node/tornadoloop.py 127.0.0.1 -l $LOGDIR/demo_node1.log &
-
-	# Demo Peer Market
-	sleep 2
-    STOREFILE2=ppl/s_tec
-	$PYTHON node/tornadoloop.py 127.0.0.2 -s tcp://127.0.0.1:$MY_MARKET_PORT -l $LOGDIR/demo_node2.log &
-
-	sleep 2
-    STOREFILE3=ppl/genjix
-	$PYTHON node/tornadoloop.py 127.0.0.3 -s tcp://127.0.0.1:$MY_MARKET_PORT -l $LOGDIR/demo_node3.log &
->>>>>>> upstream/master
+	$PYTHON node/tornadoloop.py $STOREFILE4 127.0.0.4 -s tcp://127.0.0.1:$MY_MARKET_PORT -n 47774 -f $MY_NODE_FILE -l $LOGDIR/demo_node4.log -u 4 &
 
 fi

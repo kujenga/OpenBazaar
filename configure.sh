@@ -40,5 +40,6 @@ sudo pip install pyzmq
 sudo pip install tornado
 sudo pip install pyelliptic
 sudo pip install pymongo
+sudo pip install pycountry
 
 echo 'use openbazaar' | mongo

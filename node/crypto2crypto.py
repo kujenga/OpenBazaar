@@ -33,7 +33,7 @@ class CryptoPeerConnection(PeerConnection):
 
 class CryptoTransportLayer(TransportLayer):
 
-    def __init__(self, my_ip, my_port, market_id):
+    def __init__(self, my_ip, my_port, market_id, store_file):
 
         TransportLayer.__init__(self, my_ip, my_port)
 
@@ -41,11 +41,9 @@ class CryptoTransportLayer(TransportLayer):
 
         self.nick_mapping = {}
 
-<<<<<<< HEAD
 		# load nickname, secret and pubkey from store_file, which is a JSON file in ppl
-        self.nickname, self.secret, self.pubkey = \
-            self.load_crypto_details(store_file)
-=======
+        self.nickname, self.secret, self.pubkey = self.load_crypto_details(store_file)
+
         # Connect to database
         MONGODB_URI = 'mongodb://localhost:27017'
         _dbclient = MongoClient()
@@ -67,11 +65,6 @@ class CryptoTransportLayer(TransportLayer):
             self.settings = self._db.settings.find_one({'id':"%s"%market_id})
 
 
-
-#        self.nickname, self.secret, self.pubkey = \
-#            self.load_crypto_details(store_file)
-
->>>>>>> upstream/master
         self._log = logging.getLogger(self.__class__.__name__)
 
     # Return data array with details from the crypto file

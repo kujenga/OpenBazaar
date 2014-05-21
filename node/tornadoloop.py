@@ -11,10 +11,8 @@ from ws import WebSocketHandler
 import logging
 import signal
 import re
+import threading
 
-# for Entangled implementation
-import entangled.node
-from entangled.kademlia.datastore import SQLiteDataStore
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -23,11 +21,11 @@ class MainHandler(tornado.web.RequestHandler):
 
 class MarketApplication(tornado.web.Application):
 
-    def __init__(self, store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri):
+    def __init__(self, store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri, market_id):
 
         self.transport = CryptoTransportLayer(my_market_ip,
                                               my_market_port,
-                                              store_file)
+                                              market_id)
         self.transport.join_network(seed_uri)
         # TODO: would be nice to have persistent data storage, create a database if one doesn't exist
         dataStore = SQLiteDataStore() #'/shop/sites.sqlite')
@@ -69,6 +67,7 @@ class MarketApplication(tornado.web.Application):
         return self.transport
 
 
+<<<<<<< HEAD
 # Run this if executed directly
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -83,13 +82,21 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--log_file", default='node.log')
     args = parser.parse_args()
 
+=======
+def start_node(my_market_ip, my_market_port, seed_uri, log_file, userid):
+>>>>>>> upstream/master
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(name)s -  \
                                 %(levelname)s - %(message)s',
-                        filename=args.log_file)
+                        filename=log_file)
 
+<<<<<<< HEAD
     application = MarketApplication(args.store_file, args.my_market_ip,
                                     args.my_market_port, args.my_node_port, args.my_node_file, args.seed_uri)
+=======
+    application = MarketApplication(my_market_ip,
+                                    my_market_port, seed_uri, userid)
+>>>>>>> upstream/master
 
     error = True
     port = 8888
@@ -101,12 +108,28 @@ if __name__ == "__main__":
             port += 1
 
     logging.getLogger().info("Started user app at http://%s:%s"
-                             % (args.my_market_ip, port))
+                             % (my_market_ip, port))
 
     # handle shutdown
     def shutdown(x, y):
         application.get_transport().broadcast_goodbye()
         sys.exit(0)
-    signal.signal(signal.SIGTERM, shutdown)
+    try:
+        signal.signal(signal.SIGTERM, shutdown)
+    except ValueError:
+        # not the main thread
+        pass
 
     tornado.ioloop.IOLoop.instance().start()
+
+# Run this if executed directly
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("my_market_ip")
+    parser.add_argument("-p", "--my_market_port", type=int, default=12345)
+    parser.add_argument("-s", "--seed_uri")
+    parser.add_argument("-l", "--log_file", default='node.log')
+    parser.add_argument("-u", "--userid", default=1)
+    args = parser.parse_args()
+    start_node(args.my_market_ip,
+               args.my_market_port, args.seed_uri, args.log_file, args.userid)

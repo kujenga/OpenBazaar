@@ -7,6 +7,12 @@ import json
 import lookup
 from pymongo import MongoClient
 import logging
+import pyelliptic
+import pycountry
+from ecdsa import SigningKey,SECP256k1
+import random
+from obelisk import bitcoin
+import base64
 
 # for entangled implementation
 from twisted.internet import defer
@@ -37,9 +43,19 @@ class Market(object):
         self.pages = {}
 
         # Connect to database
-        MONGODB_URI = 'mongodb://localhost:27017'         
+        MONGODB_URI = 'mongodb://localhost:27017'
         _dbclient = MongoClient()
         self._db = _dbclient.openbazaar
+
+        self.settings = self._db.settings.find_one()
+
+
+
+        welcome = True
+
+        if self.settings:
+            if  'welcome' in self.settings.keys() and self.settings['welcome']:
+                welcome = False
 
         # Register callbacks for incoming events
         transport.add_callback('query_myorders', self.on_query_myorders)
@@ -49,13 +65,18 @@ class Market(object):
         transport.add_callback('negotiate_pubkey', self.on_negotiate_pubkey)
         transport.add_callback('proto_response_pubkey', self.on_response_pubkey)
 
-        # store Entangled node for replication in the network
-        self.node = node
+        self.load_page(welcome)
+	self.node = node
+    def generate_new_secret(self):
 
-        self.load_page()
+        key = bitcoin.EllipticCurveKey()
+        key.new_key_pair()
+        hexkey = key.secret.encode('hex')
 
-        # Send Market Shout
-        transport.send(shout({'text': 'Market Initialized'}))
+        self._log.info('Pubkey generate: %s' % key._public_key.pubkey)
+
+        self._db.settings.update({}, {"$set": {"secret":hexkey, "pubkey":bitcoin.GetPubKey(key._public_key.pubkey, False).encode('hex')}})
+
 
 
 ##########################################################################
@@ -76,7 +97,7 @@ class Market(object):
             return ("Key not found for this nickname", None)
 
         self._log.info("Found key: %s " % key.encode("hex"))
-        if nickname in self._transport.nick_mapping.has_key:
+        if nickname in self._transport.nick_mapping:
             self._log.info("Already have a cached mapping, just adding key there.")
             response = {'nickname': nickname,
                         'pubkey': self._transport.nick_mapping[nickname][1].encode('hex'),
@@ -87,25 +108,28 @@ class Market(object):
             return (None, response)
 
         self._transport.nick_mapping[nickname] = [key, None]
+
         self._transport.send(protocol.negotiate_pubkey(nickname, key))
 
-    # Load default information for your market from your file
-    # loads your file into the DHT *************************************************************************
-    def load_page(self):
+	# Load default information for your market from your file
+	# loads your file in from the DHT *********************************************************
+    def load_page(self, welcome):
 
-        self._log.info("Loading market config from " + sys.argv[1])
+        #self._log.info("Loading market config from %s." % self.store_file)
 
-        with open(sys.argv[1]) as f:
-            data = json.loads(f.read())
+        #with open(self.store_file) as f:
+        #    data = json.loads(f.read())
 
-        self._log.info("Configuration data: " + json.dumps(data))    
+        #self._log.info("Configuration data: " + json.dumps(data))
 
-        assert "desc" in data
-        nickname = data["nickname"]
-        desc = data["desc"]
+        #assert "desc" in data
+        #nickname = data["nickname"]
+        #desc = data["desc"]
 
-        # unnecessary as instance variables with the DHT usage
-        tagline = "%s: %s" % (nickname, desc)
+        nickname = self.settings['nickname'] if self.settings.has_key("nickname") else ""
+        storeDescription = self.settings['storeDescription'] if self.settings.has_key("storeDescription") else ""
+
+        tagline = "%s: %s" % (nickname, storeDescription)
         self.mypage = tagline
         self.nickname = nickname
         self.signature = self._transport._myself.sign(tagline)
@@ -128,24 +152,91 @@ class Market(object):
 
         self._log.info("Tagline signature: " + self.signature.encode("hex"))
 
+        if welcome:
+            self._db.settings.update({}, {"$set":{"welcome":"noshow"}})
+        else:
+            self.welcome = False
+
+
+        #self._log.info("Tagline signature: " + self.signature.encode("hex"))
+
+
+    # Products
+    def save_product(self, msg):
+        self._log.info("Product to save %s" % msg)
+        self._log.info(self._transport)
+
+        product_id = msg['id'] if msg.has_key("id") else ""
+
+        if product_id == "":
+          product_id = random.randint(0,1000000)
+
+        if not msg.has_key("productPrice") or not msg['productPrice'] > 0:
+          msg['productPrice'] = 0
+
+        if not msg.has_key("productQuantity") or not msg['productQuantity'] > 0:
+          msg['productQuantity'] = 1
+
+        self._db.products.update({'id':product_id}, {'$set':msg}, True)
+        
+
+    def remove_product(self, msg):
+        self._log.info("Product to remove %s" % msg)
+        self._db.products.remove({'id':msg['productID']})
+
+
+    def get_products(self):
+        self._log.info(self._transport.market_id)
+        products = self._db.products.find()
+        my_products = []
+
+        for product in products:
+          my_products.append({ "productTitle":product['productTitle'] if product.has_key("productTitle") else "",
+                        "id":product['id'] if product.has_key("id") else "",
+                        "productDescription":product['productDescription'] if product.has_key("productDescription") else "",
+                        "productPrice":product['productPrice'] if product.has_key("productPrice") else "",
+                        "productShippingPrice":product['productShippingPrice'] if product.has_key("productShippingPrice") else "",
+                        "productTags":product['productTags'] if product.has_key("productTags") else "",
+                        "productImageData":product['productImageData'] if product.has_key("productImageData") else "",
+                        "productQuantity":product['productQuantity'] if product.has_key("productQuantity") else "",
+                         })
+
+        return { "products": my_products }
+
 
     # SETTINGS - should be stored locally
 
     def save_settings(self, msg):
-        self._db.settings.update({}, msg, True)
+        self._log.info("Settings to save %s" % msg)
+        self._log.info(self._transport)
+        self._db.settings.update({'id':'%s'%self._transport.market_id}, {'$set':msg}, True)
 
     def get_settings(self):
-
-        settings = self._db.settings.find_one()
-
+        self._log.info(self._transport.market_id)
+        settings = self._db.settings.find_one({'id':'%s'%self._transport.market_id})
+        print settings
         if settings:
-            return {"bitmessage": settings['bitmessage'] if settings.has_key("bitmessage") else "",
-                    "email": settings['email'] if settings.has_key("email") else "",
-                    "PGPPubKey": settings['PGPPubKey'] if settings.has_key("PGPPubKey") else "",
-                    "pubkey": settings['pubkey'] if settings.has_key("pubkey") else "",
-                    "nickname": settings['nickname'] if settings.has_key("nickname") else "",
-                    "secret": settings['secret'] if settings.has_key("secret") else "",
-                    }
+            return { "bitmessage": settings['bitmessage'] if settings.has_key("bitmessage") else "",
+                "email": settings['email'] if settings.has_key("email") else "",
+                "PGPPubKey": settings['PGPPubKey'] if settings.has_key("PGPPubKey") else "",
+                "pubkey": settings['pubkey'] if settings.has_key("pubkey") else "",
+                "nickname": settings['nickname'] if settings.has_key("nickname") else "",
+                "secret": settings['secret'] if settings.has_key("secret") else "",
+                "welcome": settings['welcome'] if settings.has_key("welcome") else "",
+                "escrowAddresses": settings['escrowAddresses'] if settings.has_key("escrowAddresses") else "",
+                "storeDescription": settings['storeDescription'] if settings.has_key("storeDescription") else "",
+                "city": settings['city'] if settings.has_key("city") else "",
+                "stateRegion": settings['stateRegion'] if settings.has_key("stateRegion") else "",
+                "street1": settings['street1'] if settings.has_key("street1") else "",
+                "street2": settings['street2'] if settings.has_key("street2") else "",
+                "countryCode": settings['countryCode'] if settings.has_key("countryCode") else "",
+                "zip": settings['zip'] if settings.has_key("zip") else "",
+                "arbiterDescription": settings['arbiterDescription'] if settings.has_key("arbiterDescription") else "",
+                "arbiter": settings['arbiter'] if settings.has_key("arbiter") else "",
+                }
+
+
+
 
 
     # PAGE QUERYING
@@ -175,12 +266,14 @@ class Market(object):
         
 
     def on_page(self, page):
+
         self._log.info("Page returned: " + str(page))
 
         pubkey = page.get('pubkey')
         page = page.get('text')
 
         if pubkey and page:
+            self._log.info(page)
             self.pages[pubkey] = page
 
     # Return your page info if someone requests it on the network
@@ -188,9 +281,11 @@ class Market(object):
     # this will be unnecessary when the DHT is implemented ----------------------------------------------------
     def on_query_page(self, peer):
         self._log.info("Someone is querying for your page")
-        self._transport.send(proto_page(self._transport._myself.get_pubkey(),
-                                        self.mypage, self.signature,
-                                        self.nickname))
+        self.settings = self.get_settings()
+        self._log.info(base64.b64encode(self.settings['storeDescription'].encode('ascii')))
+        self._transport.send(proto_page(self._transport._myself.get_pubkey().encode('hex'),
+                                        self.settings['storeDescription'], self.signature,
+                                        self.settings['nickname']))
 
     def on_query_myorders(self, peer):
         self._log.info("Someone is querying for your page")

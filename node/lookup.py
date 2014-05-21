@@ -6,7 +6,7 @@ class QueryIdent:
     def __init__(self):
         self._ctx = zmq.Context()
         self._socket = self._ctx.socket(zmq.REQ)
-        
+
         # Point to OpenBazaar Identity server for now
         self._socket.connect("tcp://seed.openbazaar.org:5558")
 
@@ -22,4 +22,3 @@ class QueryIdent:
 
 if __name__ == "__main__":
     query = QueryIdent()
-

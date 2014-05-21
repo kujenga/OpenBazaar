@@ -1,4 +1,4 @@
-angular.module('app', [])
+angular.module('app', ['ui.bootstrap'])
 
 angular.module('app').directive('identicon', function () {
     return {
@@ -26,8 +26,10 @@ angular.module('app').directive('identicon', function () {
     }
   });
 
-angular.module('app').controller('Market', ['$scope', function($scope) {
+angular.module('app')
+  .controller('Market', ['$scope', function($scope) {
 
+  $scope.newuser = true
   $scope.page = false
   $scope.dashboard = true
   $scope.myInfoPanel = true
@@ -38,7 +40,6 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
   $scope.myOrders = []
   $scope.myReviews = []
   $scope.sidebar = true
-
 
   $scope.createShout = function() {
      // launch a shout
@@ -66,7 +67,7 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
 
   $scope.awaitingShop = null;
   $scope.queryShop = function(peer) {
-
+     console.log('Shop',peer);
      $scope.dashboard = false;
      $scope.showStorePanel('storeProducts');
      $scope.awaitingShop = peer.pubkey;
@@ -99,6 +100,12 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
       case 'myorders':
       	 $scope.parse_myorders(msg)
       	 break;
+      case 'products':
+         $scope.parse_products(msg)
+         break;
+      case 'orderinfo':
+         $scope.parse_orderinfo(msg)
+         break;
       case 'reputation':
       	 console.log(msg);
          $scope.parse_reputation(msg)
@@ -159,14 +166,62 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
       }
   }
 
+  $scope.parse_orderinfo = function(msg) {
+
+      console.log("Order info retrieved");
+      console.log(msg.order);
+
+      $scope.modalOrder = msg.order;
+
+
+      if(msg.order.state == 'accepted') {
+        $scope.modalOrder.waitingForPayment = true;
+      } else if (msg.order.state == 'paid') {
+
+        if (msg.order.seller == $scope.myself.pubkey) {
+          $scope.modalOrder.waitingForShipment = true;
+        } else {
+          $scope.modalOrder.waitingForSellerToShip = true;
+        }
+      } else if(msg.order.state == 'sent') {
+        $scope.modalOrder.flagForArbitration = true;
+      } else {
+        $scope.modalOrder.waitingForPayment = false;
+      }
+
+      if (!$scope.$$phase) {
+
+         $scope.$apply();
+      }
+  }
+
+  $scope.parse_welcome = function(msg) {
+
+    console.log(msg)
+
+  }
+
   $scope.parse_myorders = function(msg) {
 
-  	  console.log('Retrieved my orders: ',msg);
+
   	  $scope.orders = msg['orders'];
+
 
       if (!$scope.$$phase) {
 	       $scope.$apply();
 	    }
+
+  }
+
+  $scope.product = {};
+  $scope.parse_products = function(msg) {
+      console.log(msg.products.products);
+      $scope.products = msg.products.products;
+
+      $scope.product = {};
+      if (!$scope.$$phase) {
+         $scope.$apply();
+      }
 
   }
 
@@ -202,24 +257,23 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
 
   $scope.parse_page = function(msg) {
 
-    console.log('Parsing page: ', msg);
-
     if (msg.pubkey != $scope.awaitingShop)
        return
     if (!$scope.reviews.hasOwnProperty(msg.pubkey)) {
         $scope.reviews[msg.pubkey] = []
     }
-    $scope.currentReviews = $scope.reviews[msg.pubkey]
-    $scope.page = msg
 
-    // Write in store content into the HTML
-    var contentDiv = document.getElementById('page-content')
-    contentDiv.innerHTML = msg.text;
+    if (!$scope.dashboard) {
+      $scope.currentReviews = $scope.reviews[msg.pubkey]
+      $scope.page = msg
 
-    console.log("Parse orders:"+$scope.myOrders);
+      // Write in store content into the HTML
+      var contentDiv = document.getElementById('page-content')
+      contentDiv.innerHTML = msg.text;
 
-    if (!$scope.$$phase) {
-       $scope.$apply();
+      if (!$scope.$$phase) {
+         $scope.$apply();
+      }
     }
   }
 
@@ -227,9 +281,11 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
 
     console.log('Add peer: ',msg);
 
-    var index = $scope.peers.findIndex(function(element) {
-        return element.uri == msg.uri;
-    }); 
+    /* get index if peer is already known */
+    var index = [-1].concat($scope.peers).reduce(
+        function(previousValue, currentValue, index, array){
+            return currentValue.uri == msg.uri ? index : previousValue ;
+    });
 
     if(index == -1) {
         /* it is a new peer */
@@ -274,13 +330,14 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
 
     $scope.myself = msg;
 
+
     if (!$scope.$$phase) {
        $scope.$apply();
     }
 
+
     // Settings
     $scope.settings = msg.settings
-    console.log($scope.settings)
 
     msg.reputation.forEach(function(review) {
        add_review_to_page($scope.myself.pubkey, review)
@@ -305,11 +362,18 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
   $scope.searchNickname = function() {
      var query = {'type': 'search', 'text': $scope.search };
      $scope.searching = $scope.search;
-     socket.send('search', query)
+     //socket.send('search', query)
      $scope.search = ""
   }
 
-  $scope.settings = { email:'', PGPPubKey:'', bitmessage:'', pubkey:'', secret:'', nickname:'' }
+  $scope.settings = { email:'',
+                      PGPPubKey:'',
+                      bitmessage:'',
+                      pubkey:'',
+                      secret:'',
+                      nickname:'',
+                      welcome:'',
+                      escrowAddresses:''}
   $scope.saveSettings = function() {
       var query = {'type': 'update_settings', settings: $scope.settings }
       socket.send('update_settings', query)
@@ -320,6 +384,7 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
   $scope.newOrder = {text:'', tx: ''}
   $scope.createOrder = function() {
       $scope.creatingOrder = false;
+
       var newOrder = {
           'text': $scope.newOrder.text,
           'state': 'new',
@@ -329,13 +394,17 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
       $scope.newOrder.text = '';
       //$scope.orders.push(newOrder);     // This doesn't really do much since it gets wiped away
       socket.send('order', newOrder);
+      $scope.sentOrder = true;
 
-      $scope.showStorePanel('storeOrders');
-      $('#pill-storeorders').addClass('active').siblings().removeClass('active').blur();
+      $scope.showDashboardPanel('orders');
+
+      $('#pill-orders').addClass('active').siblings().removeClass('active').blur();
+      $("#orderSuccessAlert").alert();
+      window.setTimeout(function() { $("#orderSuccessAlert").alert('close') } , 5000);
 
   }
   $scope.payOrder = function(order) {
-      order.state = 'payed'
+      order.state = 'paid'
       order.tx = $scope.newOrder.tx;
       $scope.newOrder.tx = '';
       socket.send('order', order);
@@ -354,12 +423,40 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
   	socket.send('order', order)
   }
 
+  $scope.removeProduct = function(productID) {
+     socket.send("remove_product", {"productID":productID});
+     socket.send("query_products", {})
+  }
+
+
+  $scope.addEscrow = function() {
+    escrowAddress = $('#inputEscrowAddress').val();
+    $('#inputEscrowAddress').val('');
+
+    // TODO: Check for valid escrow address
+
+    if(!$scope.settings.escrowAddresses) {
+      $scope.settings.escrowAddresses = [];
+    }
+    $scope.settings.escrowAddresses.push(escrowAddress);
+
+    // Dedupe escrow addresses
+    var uniqueEscrows = [];
+    $.each($scope.settings.escrowAddresses, function(i, el){
+        if($.inArray(el, uniqueEscrows) === -1) uniqueEscrows.push(el);
+    });
+
+    $scope.settings.escrowAddresses = uniqueEscrows;
+
+    $scope.saveSettings();
+  }
 
   function resetPanels() {
   	$scope.messagesPanel = false;
   	$scope.reviewsPanel = false;
   	$scope.productCatalogPanel = false;
   	$scope.settingsPanel = false;
+    $scope.arbitrationPanel = false;
   	$scope.ordersPanel = false;
   	$scope.myInfoPanel = false;
   }
@@ -390,7 +487,11 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
   			$scope.ordersPanel = true;
   			$scope.queryMyOrder();
   			break;
+      case 'arbitration':
+        $scope.arbitrationPanel = true;
+        break;
   		case 'productCatalog':
+        $scope.queryProducts();
   			$scope.productCatalogPanel = true;
   			break;
   		case 'settings':
@@ -423,7 +524,7 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
   			$scope.storeProductsPanel = true;
   			break;
   		case 'storeOrders':
-  			$scope.storeOrdersPanel = true;
+  			//$scope.storeOrdersPanel = true;
   			break;
   		case 'storeReviews':
   			$scope.storeReviewsPanel = true;
@@ -437,10 +538,27 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
 
 
   $scope.queryMyOrder = function() {
-	// Query for orders
-	var query = {'type': 'query_orders', 'pubkey': ''}
-	console.log('querying orders')
-	socket.send('query_orders', query)
+    	// Query for orders
+    	var query = {'type': 'query_orders', 'pubkey': ''}
+    	console.log('querying orders')
+    	socket.send('query_orders', query)
+
+  }
+
+  $scope.queryProducts = function() {
+      // Query for products
+      var query = {'type': 'query_products', 'pubkey': ''}
+      console.log('querying products')
+      socket.send('query_products', query)
+
+  }
+
+  $scope.generateNewSecret = function() {
+
+    var query = {'type': 'generate_secret'}
+    console.log('Generating new secret key')
+    socket.send('generate_secret', query)
+    console.log($scope.myself.settings)
 
   }
 
@@ -449,6 +567,243 @@ angular.module('app').controller('Market', ['$scope', function($scope) {
   $('ul.nav.nav-pills li a').click(function() {
 	    $(this).parent().addClass('active').siblings().removeClass('active').blur();
 	});
+
+
+
+// Modal Code
+$scope.WelcomeModalCtrl = function ($scope, $modal, $log) {
+
+
+
+  $scope.open = function (size, backdrop) {
+
+      backdrop = backdrop ? backdrop : true;
+
+      var modalInstance = $modal.open({
+        templateUrl: 'myModalContent.html',
+        controller: ModalInstanceCtrl,
+        size: size,
+        backdrop: backdrop,
+        resolve: {
+          settings: function () {
+            return $scope.settings;
+          }
+        }
+      });
+
+      modalInstance.result.then(function (selectedItem) {
+        $scope.selected = selectedItem;
+      }, function () {
+        $log.info('Modal dismissed at: ' + new Date());
+      });
+
+    }
+
+
+};
+
+  // Please note that $modalInstance represents a modal window (instance) dependency.
+  // It is not the same as the $modal service used above.
+
+  var ModalInstanceCtrl = function ($scope, $modalInstance, settings) {
+
+    $scope.settings = settings;
+    // $scope.selected = {
+    //   item: $scope.items[0]
+    // };
+    //
+
+    $scope.welcome = settings.welcome;
+
+
+
+    $scope.ok = function () {
+      $modalInstance.dismiss('cancel');
+    };
+
+    $scope.cancel = function () {
+      $modalInstance.dismiss('cancel');
+    };
+  };
+
+
+
+
+  $scope.ViewOrderCtrl = function ($scope, $modal, $log) {
+
+
+
+    $scope.open = function (size, orderId) {
+
+      // Send socket a request for order info
+      socket.send('query_order', { orderId: orderId } )
+
+      var modalInstance = $modal.open({
+        templateUrl: 'viewOrder.html',
+        controller: ViewOrderInstanceCtrl,
+        size: size,
+        resolve: {
+          orderId: function() {
+            return orderId;
+          },
+          scope: function() { return $scope }
+        }
+      });
+
+      modalInstance.result.then(function () {
+
+      }, function () {
+        $log.info('Modal dismissed at: ' + new Date());
+      });
+    };
+  };
+
+
+ var ViewOrderInstanceCtrl = function ($scope, $modalInstance, orderId, scope) {
+
+
+   $scope.orderId = orderId;
+   $scope.Market = scope;
+
+   $scope.markOrderPaid = function(orderId) {
+
+    socket.send("pay_order", { orderId: orderId} )
+
+    scope.modalOrder.state = 'paid';
+    scope.modalOrder.waitingForPayment = false;
+
+    // Refresh orders in background
+    scope.queryMyOrder();
+
+    if (!$scope.$$phase) {
+       $scope.$apply();
+    }
+
+   }
+
+
+   $scope.markOrderShipped = function(orderId) {
+
+    socket.send("ship_order", { orderId: orderId} )
+
+    scope.modalOrder.state = 'sent';
+    scope.modalOrder.waitingForShipment = false;
+
+    // Refresh orders in background
+    scope.queryMyOrder();
+
+    if (!$scope.$$phase) {
+       $scope.$apply();
+    }
+
+   }
+
+    $scope.ok = function () {
+      $modalInstance.close();
+    };
+
+    $scope.cancel = function () {
+      $modalInstance.dismiss('cancel');
+    };
+  };
+
+
+// Modal Code
+$scope.ProductModal = function ($scope, $modal, $log) {
+
+  $scope.open = function (size, backdrop) {
+
+      backdrop = backdrop ? backdrop : true;
+
+      var modalInstance = $modal.open({
+        templateUrl: 'ProductModal.html',
+        controller: ProductModalInstance,
+        size: size,
+        backdrop: backdrop,
+        resolve: {
+          product: function () {
+            return {"product":$scope.product};
+          }
+        }
+      });
+
+      modalInstance.result.then(function (selectedItem) {
+        $scope.selected = selectedItem;
+      }, function () {
+        $log.info('Product modal dismissed at: ' + new Date());
+      });
+
+    }
+
+
+};
+
+var ProductModalInstance = function ($scope, $modalInstance, product) {
+
+  $scope.product = product.product;
+
+  $scope.saveProduct = function () {
+
+    var imgUpload = document.getElementById('inputProductImage').files[0];
+
+    if(imgUpload) {
+      
+      if (imgUpload.type != '' && $.inArray(imgUpload.type, ['image/jpeg', 'image/gif', 'image/png']) != -1) {
+
+        var r = new FileReader();
+        r.onloadend = function(e){
+          var data = e.target.result;
+
+          $scope.product.productImageName = imgUpload.name;
+          $scope.product.productImageData = imgUpload.result;
+          console.log(imgUpload);
+
+          console.log('SAVED:',$scope.product);
+          socket.send("save_product", $scope.product)
+          socket.send("query_products", {})
+
+          $modalInstance.dismiss('cancel');
+
+
+        }
+        r.readAsArrayBuffer(imgUpload);
+
+      } else {
+        console.log('SAVED:',$scope.product);
+        socket.send("save_product", $scope.product)
+        socket.send("query_products", {})
+
+        $modalInstance.dismiss('cancel');
+      }
+
+    } else {
+
+      console.log('SAVED:',$scope.product);
+      socket.send("save_product", $scope.product)
+      socket.send("query_products", {})
+
+      $modalInstance.dismiss('cancel');
+    }
+
+
+
+  };
+
+  $scope.cancel = function () {
+    socket.send("query_products", {});
+    $modalInstance.dismiss('cancel');
+  };
+
+  $scope.toggleItemAdvanced = function() {
+
+    $scope.itemAdvancedDetails = ($scope.itemAdvancedDetails) ? 0 : 1;
+  }
+
+
+
+
+};
+
 
 
 

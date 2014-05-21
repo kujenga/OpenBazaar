@@ -2,6 +2,8 @@ import obelisk
 import broadcast
 
 # TODO: Change this over to development address if using TESTNET
+
+# Private Key HEX
 secret = "8cd252b8a48abb98aed387b204a417ae38e4a928b0e997654bdd742dd044659c".decode("hex")
 address = "1PRBVdCHoPPD3bz8sCZRTm6iAtuoqFctvx"
 
@@ -18,11 +20,12 @@ class HistoryCallback:
         self.finished_cb = finished_cb
 
     def fetched(self, ec, history):
-    	    
+
+
         if ec is not None:
             print >> sys.stderr, "Error fetching history:", ec
             return
-        
+
         unspent_rows = [row[:4] for row in history if row[4] is None]
         unspent = build_output_info_list(unspent_rows)
         tx_hash = build_actual_tx(unspent, self.root_hash)
@@ -32,7 +35,8 @@ def send_root_hash(root_hash, finished_cb):
     global client
     if client is None:
         client = obelisk.ObeliskOfLightClient("tcp://obelisk.unsystem.net:8081")
-    print "Sending", root_hash.encode("hex")
+
+    print "Retrieving History", root_hash.encode("hex")
     cb = HistoryCallback(root_hash, finished_cb)
     client.fetch_history(address, cb.fetched)
 
@@ -91,4 +95,3 @@ if __name__ == "__main__":
         print ec
     client.fetch_history(address, history_fetched)
     reactor.run()
-

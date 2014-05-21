@@ -20,10 +20,10 @@ def review(pubkey, subject, signature, text, rating):
 
 class Reputation(object):
     def __init__(self, transport):
-        
+
         self._transport = transport
         self._priv = transport._myself
-        
+
         # TODO: Pull reviews out of persistent storage
         self._reviews = defaultdict(list)
 
@@ -42,18 +42,17 @@ class Reputation(object):
 
 
     def get_my_reputation(self):
-        self._log.info('My Public Key: %s', self._priv)
         return self._reviews[self._priv.get_pubkey()]
 
 
     # Create a new review and broadcast to the network
     def create_review(self, pubkey, text, rating):
-        
+
         signature = self._priv.sign(self._build_review(pubkey, text, rating))
 
         new_review = review(self._priv.get_pubkey(), pubkey, signature, text, rating)
         self._reviews[pubkey].append(new_review)
-        
+
         # Broadcast the review
         self._transport.send(proto_reputation(pubkey, [new_review]))
 
@@ -67,25 +66,25 @@ class Reputation(object):
     def query_reputation(self, pubkey):
         self._transport.send(proto_query_reputation(pubkey))
 
-	
-	# 
+
+	#
     def parse_review(self, msg):
-        
-        pubkey = msg['pubkey'].decode('hex')        
-        subject = msg['subject'].decode('hex')         
+
+        pubkey = msg['pubkey'].decode('hex')
+        subject = msg['subject'].decode('hex')
         signature = msg['sig'].decode('hex')
         text = msg['text']
         rating = msg['rating']
 
         # check the signature
         valid = ECC(pubkey=pubkey).verify(signature, self._build_review(subject, str(text), rating))
-        
-        if valid:            
-            newreview = review(pubkey, subject, signature, text, rating)                     
-            
-            if newreview not in self._reviews[subject]:               
-                self._reviews[subject].append(newreview)         
-            
+
+        if valid:
+            newreview = review(pubkey, subject, signature, text, rating)
+
+            if newreview not in self._reviews[subject]:
+                self._reviews[subject].append(newreview)
+
         else:
             self._log.info("[reputation] Invalid review!")
 

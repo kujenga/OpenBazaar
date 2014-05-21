@@ -7,6 +7,8 @@ import forge
 import shelve
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
+import logging
+from logging import FileHandler, StreamHandler
 
 class Blockchain:
 
@@ -22,13 +24,13 @@ class Blockchain:
             pass
         db.close()
         self._regenerate_lookup()
-        print "[Blockchain] Starting identity blockchain:", self.blocks
+        logging.getLogger().info("[Blockchain] Starting identity blockchain %s:" % self.blocks)
 
 	# Accept block(s) for processing
     def accept(self, block):
         self.processor.append(block)
 
-	# 
+	#
     def update(self):
         process = self.processor
         self.processor = []
@@ -39,17 +41,17 @@ class Blockchain:
         if not block.complete:
             self.postpone(block)
             return
-        print "Processing block...", block
-        
+        logging.getLogger().info("Processing block...", block)
+
         # Check hash of keys + values matches root hash
         if not block.verify():
             # Invalid block so reject it.
             print >> sys.stderr, "Rejecting invalid block."
             return
-        
+
         # Fetch tx to check it's valid
         assert block.header.tx_hash
-        
+
         # Forging callback
         def tx_fetched(ec, tx):
             print ec
@@ -58,82 +60,81 @@ class Blockchain:
                 self.postpone(block)
                 return
             self._tx_fetched(block, tx, block.header.tx_hash)
-        
+
         if forge.client is None:
             forge.client = obelisk.ObeliskOfLightClient("tcp://obelisk.unsystem.net:8081")
         forge.client.fetch_transaction(block.header.tx_hash, tx_fetched)
 
     def _tx_fetched(self, block, tx, tx_hash):
-        
+
         # Continuing on with block validation...
         tx = obelisk.Transaction.deserialize(tx)
         if len(tx.outputs) != 2:
             print >> sys.stderr, "Tx outputs not 2, incorrect."
             return
-            
+
         # Incorrect output size
         if len(tx.outputs[0].script) != 22:
             print >> sys.stderr, "Incorrect output script size."
             return
-            
-        # Transaction scriptPubKey doesn't start with OP_RETURN + push    
+
+        # Transaction scriptPubKey doesn't start with OP_RETURN + push
         if tx.outputs[0].script[:2] != "\x6a\x14":
             print >> sys.stderr, "OP_RETURN + push"
             return
-            
+
         root_hash = tx.outputs[0].script[2:]
-        
+
         # Root hashes don't match
         if block.header.root_hash != root_hash:
             print >> sys.stderr, "Non matching root hash with tx."
             return
-            
+
         # Fetch tx height/index associated with block
-        
+
         # Fetch tx callback
         def txidx_fetched(ec, height, offset):
             if ec is not None:
                 print >> sys.stderr, "Dodgy error, couldn't find tx off details."
                 return
             self._txidx_fetched(block, height, offset)
-        
+
         forge.client.fetch_transaction_index(tx_hash, txidx_fetched)
 
     def _txidx_fetched(self, block, height, offset):
-        
+
         # Continue on... Block seems fine...
         # Check prev hash is in the list.
         if not self._block_hash_exists(block.prev_hash):
             print >> sys.stderr, "Previous block does not exist. Re-processing later."
             reactor.callLater(5, self.accept, block)
             return
-        
+
         # Check for duplicate priority
         block.priority = height * 10**8 + offset
         if self._priority_exists(block.priority):
             print >> sys.stderr, "Blocks cannot have matching priorities."
             return
-            
+
         # Add new block and sort on priority
         self.blocks.append(block)
         self.blocks.sort(key=lambda b: b.priority)
         self._regenerate_lookup()
-        
+
         # add to blockchain
-        print "Done!"
+        logging.getLogger().info("Done!")
         db = shelve.open("blockchain")
         db["chain"] = self.blocks
         db.close()
 
-	# 
     def _regenerate_lookup(self):
         for block in self.blocks:
             for name, key in block.txs:
                 if name not in self.registry:
-                    print "Adding:", name
+                    logging.getLogger().info("Adding:", name)
                     self.registry[name] = key
                 else:
-                    print "Name already in registry"
+                    logging.getLogger().info("Name already in registry")
 
     def postpone(self, block):
         # read for later processing
@@ -174,17 +175,17 @@ class Pool:
         self.chain = chain
 
     def add(self, tx):
-        
+
         self.txs.append(tx)
-        
+
         # TODO: Wait for more registrations and then forge block
         # add timeout/limit logic here.
         # for now create new block for every new registration.
-        
+
         self.fabricate_block()
 
     def fabricate_block(self):
-        print "[Pool] Fabricating new block!"
+        logging.getLogger().info("[Pool] Fabricating new block!")
         txs = self.txs
         self.txs = []
         block = Block(txs, self.chain.last_hash)
@@ -206,13 +207,13 @@ class Block:
         self.complete = False
 
     def register(self):
-        
+
         """Register block in the bitcoin blockchain
         """
-        
+
         # Calculate Merkle root
         root_hash = self.calculate_root_hash()
-        
+
         # Create tx with root_hash as output
         self.header = BlockHeader("", root_hash)
         forge.send_root_hash(root_hash, self._registered)
@@ -220,7 +221,7 @@ class Block:
     def _registered(self, tx_hash):
         self.header.tx_hash = tx_hash
         self.complete = True
-        print "Registered block, awaiting confirmation:", tx_hash.encode("hex")
+        logging.getLogger().info("Registered block, awaiting confirmation:", tx_hash.encode("hex"))
 
     def calculate_root_hash(self):
         h = hashlib.new("ripemd160")
@@ -254,6 +255,7 @@ class ZmqPoller:
         self.context = zmq.Context()
         self.recvr = self.context.socket(zmq.PULL)
         self.recvr.bind("tcp://*:5557")
+        logging.getLogger().info("Started on port 5557")
         self.query = self.context.socket(zmq.REP)
         self.query.bind("tcp://*:5558")
 
@@ -269,17 +271,17 @@ class ZmqPoller:
         value = self.recvr.recv()
         self.pool.add((name_reg, value))
 
-	
+
     def _recv_query(self):
-    
+
         """ Receive query for identity
 	    """
-	
+
         try:
             name = self.query.recv(flags=zmq.NOBLOCK)
         except zmq.ZMQError:
             return
-        print "[ZMQ] Lookup:", name
+        logging.getLogger().info("[ZMQ] Lookup:  %s" % name)
         value = self.chain.lookup(name)
         if value is None:
             self.query.send("__NONE__")
@@ -288,7 +290,9 @@ class ZmqPoller:
 
 
 def main(argv):
-    
+
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', filename='logs/identity.log')
+
     chain = Blockchain()
     pool = Pool(chain)
     zmq_poller = ZmqPoller(pool, chain)
@@ -297,8 +301,7 @@ def main(argv):
     lc_chain = LoopingCall(chain.update)
     lc_chain.start(6)
     reactor.run()
-    print "Reactor exited."
+    logging.getLogger().info("Identity server stopped")
 
 if __name__ == "__main__":
     main(sys.argv)
-

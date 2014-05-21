@@ -10,9 +10,7 @@ import logging
 
 # for entangled implementation
 from twisted.internet import defer
-
 import hashlib
-
 import entangled.node
 from entangled.kademlia.datastore import SQLiteDataStore
 

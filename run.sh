@@ -1,13 +1,15 @@
 # Market Info
 MY_MARKET_IP=$(curl -s ifconfig.me)
 MY_MARKET_PORT=12345
+
+# Entangled Node Info
 MY_NODE_PORT=54321
+
 # Specify a seed URI or you will be put into demo mode
 SEED_URI=tcp://seed.openbazaar.org:12345
 
 # Run in local test mode if not production
-#MODE=production
-MODE=production
+MODE=test
 
 # Store config file
 STOREFILE=ppl/default
@@ -38,10 +40,10 @@ else
 	# Demo Peer Market
 	sleep 2
     STOREFILE2=ppl/s_tec
-	$PYTHON node/tornadoloop.py $STOREFILE2 127.0.0.2 -s tcp://127.0.0.1:$MY_MARKET_PORT -n $bMY_NODE_PORT -l $LOGDIR/demo_node2.log &
+	$PYTHON node/tornadoloop.py $STOREFILE2 127.0.0.2 -s tcp://127.0.0.1:$MY_MARKET_PORT -l $LOGDIR/demo_node2.log &
 
 	sleep 2
     STOREFILE3=ppl/genjix
-	$PYTHON node/tornadoloop.py $STOREFILE3 127.0.0.3 -s tcp://127.0.0.1:$MY_MARKET_PORT -n $MY_NODE_PORT -l $LOGDIR/demo_node3.log &
+	$PYTHON node/tornadoloop.py $STOREFILE3 127.0.0.3 -s tcp://127.0.0.1:$MY_MARKET_PORT -l $LOGDIR/demo_node3.log &
 
 fi

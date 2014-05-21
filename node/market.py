@@ -31,7 +31,7 @@ class Market(object):
         self.reputation = Reputation(self._transport)
         self.orders = Orders(self._transport)
         self.order_entries = self.orders._orders
-
+        
         # TODO: Persistent storage of nicknames and pages
         self.nicks = {}
         self.pages = {}

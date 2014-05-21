@@ -10,7 +10,6 @@ import logging
 
 # for entangled implementation
 from twisted.internet import defer
-from twisted.internet.protocol import Protocol, ServerFactory, ClientCreator
 
 import hashlib
 
@@ -114,9 +113,10 @@ class Market(object):
         self.signature = self._transport._myself.sign(tagline)
 
         # callback functons for DHT input
-        def publish_succ(result = None):
-            self._log.info("DHT publish result: " + result)
-        def publish_err(error = None):
+        def publish_succ(result):
+            if (result != None):
+                self._log.info("DHT publish result: " + result)
+        def publish_err(error):
             self._log.info("DHT publish error: " + error)
         # publish local site into the DHT
         page_data = proto_page(self._transport._myself.get_pubkey(),

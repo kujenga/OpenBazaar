@@ -11,6 +11,9 @@ from ws import WebSocketHandler
 import logging
 import signal
 
+# for Entangled implementation
+import entangled.node
+from entangled.kademlia.datastore import SQLiteDataStore
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -25,11 +28,13 @@ class MarketApplication(tornado.web.Application):
                                               my_market_port,
                                               store_file)
         self.transport.join_network(seed_uri)
-        dataStore = SQLiteDataStore('../shop/sites.sqlite')
+        # TODO: would be nice to have persistent data storage, create a database if one doesn't exist
+        dataStore = SQLiteDataStore() #'/shop/sites.sqlite')
         # TODO: need a way to cache these persistently and load them each time, cannot be empty
         knownNodes = [()]
         self.node = entangled.node.EntangledNode(udpPort=my_node_port, dataStore=dataStore)
-        node.joinNetwork(knownNodes)
+        # needs some entry point into the ring, see TODO above
+        self.node.joinNetwork() #knownNodes)
         self.market = Market(self.transport,self.node)
 
         handlers = [

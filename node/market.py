@@ -93,7 +93,7 @@ class Market(object):
         self._transport.send(protocol.negotiate_pubkey(nickname, key))
 
     # Load default information for your market from your file
-    # here could be a good place to load your file into the DHT ***************************************************
+    # loads your file into the DHT *************************************************************************
     def load_page(self):
 
         self._log.info("Loading market config from " + sys.argv[1])
@@ -122,14 +122,16 @@ class Market(object):
         page_data = proto_page(self._transport._myself.get_pubkey(),
                                         self.mypage, self.signature,
                                         self.nickname)
-        # there is a disparity between this operation, where the key is a hashed tagline,
-        # and the query_page operation, where the key is the public key. using the public key is probably preferable
-        deferred = self.node.publishData(tagline,page_data)
+        # this publish operation uses the public key of this user as the key for the DHT network
+        # unfortunately, the publishData method hashes this value, so it is not directly used as the key
+        # retreive operation needs to reflect this
+        deferred = self.node.publishData(self._transport._myself.get_pubkey(),page_data)
         deferred.addCallbacks(publish_succ, errback = publish_err)
 
         self._log.info("Tagline signature: " + self.signature.encode("hex"))
 
-    # SETTINGS
+
+    # SETTINGS - should be stored locally
 
     def save_settings(self, msg):
         self._db.settings.update({}, msg, True)
@@ -147,39 +149,31 @@ class Market(object):
                     "secret": settings['secret'] if settings.has_key("secret") else "",
                     }
 
+
     # PAGE QUERYING
 
     # Alter these significantly to use the DHT +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     def query_page(self, pubkey):
+        # remove the next line when possible
         self._transport.send(query_page(pubkey))
-        # prepares to queries page from the DHT
+        # creates a sha1 has of the current public key to get it into the format used by the publishData method in load_pagex
+        h = hashlib.sha1()
+        h.update(pubkey)
+        key = h.digest()
 
         # callbacks for entangled node interactions
-        def getTargetNode(result):
-            # shouldn't we be able to get the node where it is stored, not the node that published it?
-            # site should be identified by tagline signature, not 
-            targetNodeID = result[key]
-            df = self.node.findContact(targetNodeID)
-            return df
-        def connectToPeer(contact):
-            if contact == None:
-                # this would indicate that we are not getting the desired behavior out of the DHT *****************************
-                # the publisher should be allowed to disconnect from the network
-                self._log.info("File could not be retrieved.\nThe host that published this file is no longer on-line.")
-            else:
-                # FileGetter class does not exist in this implmentation, need to either implement the twisted.internet.protocol.Protocol subclass or do this another way
-                c = ClientCreator(twisted.internet.reactor, FileGetter)
-                df = c.connectTCP(contact.address, contact.port)
-                return df
-        def getPage(protocol):
-            if protocol != None:
-                # this is a method specifically implemented in the Protocol subblass from the example. maybe create an analagous request_page operation?
-                protocol.requestFile(filename, self)
-        ### Hoping that the pubkeys can be used in Entangled. if not, use sha1 from hashlib to create an appropriate key
-        df = self.node.iterativeFindValue(pubkey)
-        df.addCallback(getTargetNode)
-        df.addCallback(connectToPeer)
-        df.addCallback(getPage)
+        def retrieved_page(result):
+            # parses in retreived page and stores it locally in self.pages
+            page = result[key]
+            self._log.info("for key: "+key+" iteratve find returned: "+result[key])
+            pubkey_in = page.get('pubkey')
+            page_in = page.get('text')
+            
+            if pubkey_in and page_in:
+                self.pages[pubkey_in] = page_in
+        # searches for the value associated with sha1 has of the pubkey for the specified nodex
+        df = self.node.iterativeFindValue(key)
+        df.addCallback(retrieved_page)
         
 
     def on_page(self, page):

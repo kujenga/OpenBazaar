@@ -35,7 +35,7 @@ class MarketApplication(tornado.web.Application):
         # TODO: would be nice to have persistent data storage, create a database if one doesn't exist
         dataStore = SQLiteDataStore() #'/shop/sites.sqlite')
         # TODO: need a way to cache more of these persistently and load each time
-        known_nodes = known_entangled_nodes(my_node_file,seed_uri)
+        known_nodes = self.known_entangled_nodes(my_node_file,seed_uri)
         # initializes node with specified port and an in-memory SQLite database
         self.node = entangled.node.EntangledNode(udpPort=my_node_port, dataStore=dataStore)
         # needs some entry point into the ring, see TODO above
@@ -57,14 +57,14 @@ class MarketApplication(tornado.web.Application):
     def get_transport(self):
         return self.transport
 
-def known_entangled_nodes(node_file,seed_uri):
-    if node_file == None:
-        # finds IP addresses in the seed_uri
-        seed_ip = re.search(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}",seed_uri)
-        if seed_ip == None:
-            # if no IP address present, finds a text URL address
-            seed_ip = re.search(r"[a-z]*\.[a-z]*\.[a-z]*",suri)
-            knownNodes = [(seed_ip.group(0), my_node_port)]
+    def known_entangled_nodes(self,node_file,seed_uri):
+        if node_file == None:
+            # finds IP addresses in the seed_uri
+            seed_ip = re.search(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}",seed_uri)
+            if seed_ip == None:
+                # if no IP address present, finds a text URL address
+                seed_ip = re.search(r"[a-z]*\.[a-z]*\.[a-z]*",suri)
+                knownNodes = [(seed_ip.group(0), my_node_port)]
         else:
             knownNodes = []
             f = open(node_file, 'r')
@@ -73,7 +73,7 @@ def known_entangled_nodes(node_file,seed_uri):
             for line in lines:
                 ipAddress, udpPort = line.split()
                 knownNodes.append((ipAddress, int(udpPort)))
-        logging.getLogger().info("known_nodes for Entangled: "+" ".join(str(n) for n in knownNodes));
+        print("known_nodes for Entangled: "+" ".join(str(n) for n in knownNodes));
         
 
 def start_node(store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri, log_file, user_id):

@@ -46,6 +46,7 @@ class Market(object):
         self.store_file = store_file
         # assign Entangled Node to global
 	self.node = node
+        self.node.printContacts()
 
         # Connect to database
         MONGODB_URI = 'mongodb://localhost:27017'
@@ -146,7 +147,7 @@ class Market(object):
         def publish_succ(result):
             print("sucessfully published page into DHT!")
             if (result != None):
-                self._log.info("DHT publish result: " + result)
+                self._log.info("DHT publish result: " + " ".join(result))
         def publish_err(error):
             print("failed to publish page into DHT :(")
             self._log.info("DHT publish error: " + error)
@@ -160,7 +161,7 @@ class Market(object):
         h.update(self._transport._myself.get_pubkey())
         key = h.digest()
         
-        deferred = iterativeStore(key, page_data, originalPublisherID = self.node._generateID())
+        deferred = self.node.iterativeStore(key, page_data, originalPublisherID = self.node._generateID())
         deferred.addCallbacks(publish_succ, errback = publish_err)
 
 

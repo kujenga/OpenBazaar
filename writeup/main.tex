@@ -84,9 +84,23 @@ We address this problem by giving users with greater uptime certain perks, such 
 \section{How it works}
 A user downloads the market software, which runs a daemon in the background and allows a user to become a node in a distributed network with a P2P library known as ZeroMQ. 
 
-For Alice to become a seller, she can edit an HTML file designated as her seller page. Then a buyer like Bob can browse the market, which he runs via web browser. Bob can search for a user's nickname or click on another user's node.\footnote{At the moment, there is no functionality for searching for user nicknames, and there is a lack of anonymity since Bob must click on Alice's bare IP address if he wishes to view her wares.}
+For Alice to become a seller, she can edit an HTML file designated as her seller page.
+Then a buyer like Bob can browse the market, which he runs via web browser.
+Bob can search for a user's nickname or click on another user's node.\footnote{At the moment, there is no functionality for searching for user nicknames, and there is a lack of anonymity since Bob must click on Alice's bare IP address if he wishes to view her wares.}
 
-If Bob sees something he wants to buy, he sends a message to Alice. If Alice wishes to engage in trade, they both pick out an arbiter to settle disputes in case the deal falls through.
+If Bob sees something he wants to buy, he sends a message to Alice.
+If Alice wishes to engage in trade, an arbiter must be selected to settle disputes in the event that the deal falls through.
+An arbiter may be selected from overlap between Alice's and Bob's list of approved arbiters, or randomly if their lists don't intersect.
+
+Having selected an arbiter, the system creates a new ``multisignature'' Bitcoin address from the three users' public encryption keys.
+During the duration of the transaction, this Bitcoin address holds the buyer's money in escrow.
+The transaction is complete when two out of the three parties agree on where the money should go.
+If everything goes smoothly and the product is shipped to the buyer, both buyer and seller sign a transaction to move the bitcoins out of escrow and into the seller's account.
+If the product is defective or never ships, the arbiter must step in.
+
+Finally, each participant rates all other participants.
+Ratings are cryptographically signed with the rater's private key, which prevents users from forging reviews.
+Sellers with better ratings will naturally attract more buyers. 
 
 \section{Architectural Overview}
 The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated.

@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{setspace}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \hypersetup{
     bookmarks=true,         % show bookmarks bar?
@@ -84,6 +85,7 @@ We address this problem by giving users with greater uptime certain perks, such 
 % how the market works at a high level
 Paraphrase the wired.com article. Anonymous sellers, anonymous buyers
 
+
 \section{Architectural Overview}
 The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated.
 Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible.
@@ -92,12 +94,27 @@ However, we would like to ensure the availability of every user's marketplace by
 This is done with a distributed hash table (DHT), which provides fault tolerance, scalability, and decentralized autonomy.
 
 \subsection{Background on DHT}
-A DHT is a lookup service at heart: it maps file locations (keys) to file data (values).
-The abstract keyspace -- often a set of 160-bit strings -- is partitioned between $n$ nodes.
-Ideally, each node owns an equal portion of the keyspace; that is, each node is responsible for hosting files for $\frac{2^{160}}{n}$ potential keys. 
-A DHT employs a function $\delta(k_1, k_2)$ that measures distance between two 160-bit keys, $k_1$ and $k_2$.
-The node whose 160-bit identifier is ``closest'' -- as measured by $\delta(\cdot)$ -- to a key $k_i$ is said to own that key.
-This form of consistent hashing ensures that when a node is added or removed from a system, only the keys owned by adjacent nodes are changed.\footnote{By contrast, a traditional hash table must remap its entire keyspace when a bucket is added or removed.}
+A DHT is just a distributed dictionary; that is, hash table buckets are nodes across a network.
+Just like any other lookup service, it maps keys to values.
+In this case, the keys are hashed files or hashed file locations, and the values are the files themselves.
+That is, given some key $k = hash(filename)$, the DHT should be able to figure out which node hosts \emph{filename}, thereby allowing other nodes to request that specific file.
+This is shown in Figure~\ref{DHT}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{images/DHT.png}
+  \caption{\label{DHT}}
+\end{figure}
+
+So how do we map $hash(filename)$ to an actual node? 
+In most DHTs, each node has a 160-bit identifier that determines which potential keys each node owns.\footnote{Keys and node IDs are 160 bits for consistency with the SHA-1 hash function. Nothing stops us from using a different hash function.}
+Specifically, a node $n$ owns a key $k$ if $n$ is the closest node to $k$.
+``Nearness'' is computed by a distance function $\delta(k, n)$, which varies depending on the DHT.
+
+When deploying a distance function, one of the main considerations is load balancing.
+Ideally, the keyspace is partitioned evenly between all the nodes in the network, so one node doesn't store more keys than another. If this is not the case, then that node can get bogged down, and the entire system will suffer in performance.
+
+This form of consistent hashing ensures that when a node is added or removed from a system, only the keys owned by adjacent nodes are changed. This is yet another advantage a DHT holds over a traditional hash table, which remaps its entire keyspace when a bucket is added or removed.
 
 
 \subsection{Kademlia DHT}

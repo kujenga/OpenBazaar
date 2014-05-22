@@ -16,10 +16,9 @@ MY_NODE_FILE = "shop/internal_nodes"
 
 # Run in local test mode if not production
 if len(sys.argv) > 1:
-    MODE = "production"
-    SEED_URI = "tcp://"+sys.argv[1]+":"+str(MY_MARKET_PORT)
-else:
-    MODE = "test"
+    MODE = sys.argv[1]
+elif len(sys.argv) > 2:
+    SEED_URI = "tcp://"+sys.argv[2]+":"+str(MY_MARKET_PORT)
 
 # Store config file
 STOREFILE = "ppl/default"

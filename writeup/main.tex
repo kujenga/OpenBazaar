@@ -57,9 +57,11 @@
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Introduction}
-In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server. To circumvent the problem of a single point of failure, the winners of a hackathon recently unveiled a proof-of-concept for a peer-to-peer version of the Silk Road.
+In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server.
+To circumvent the problem of a single point of failure, the winners of a hackathon recently unveiled a proof-of-concept for a peer-to-peer version of the Silk Road.
 
-Known as OpenBazaar (formerly the DarkMarket), the fork incorporates many of the same features as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour. Still nascent, OpenBazaar has yet to implement several features.
+Known as OpenBazaar (formerly the DarkMarket), the fork incorporates many of the same features as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour.
+Still nascent, OpenBazaar has yet to implement several features.
 We choose to implement one key feature.
 
 Replication.
@@ -70,20 +72,33 @@ Replication brings two main advantages.
 First, it would allow users the convenience of not having to keep their server up constantly if they want buyers to see their wares.
 Second, it increases availability: in the event that a seller's machine crashes, his marketplace is still being hosted by other nodes in the P2P network.
 
-Replication also has two downsides. First, we must ensure that when Bob requests data for Alice's market, he receives the most up-to-date version of her market. We address the challenge of synchronization later.
+Replication also has two downsides.
+First, we must ensure that when Bob requests data for Alice's market, he receives the most up-to-date version of her market.
+We address the challenge of synchronization later.
 
-Second, replication deincentivizes users from maintaining their servers. That is, what is to stop Bob from powering down his machine if Alice is hosting his marketplace for him? We address this problem by giving users with greater uptime certain perks, such as having to pay less of a commission for an arbiter during transactions.
+Second, replication deincentivizes users from maintaining their servers.
+That is, what is to stop Bob from powering down his machine if Alice is hosting his marketplace for him?
+We address this problem by giving users with greater uptime certain perks, such as having to pay less of a commission for an arbiter during transactions.
 
 \section{How the Market Works}
 % how the market works at a high level
 Paraphrase the wired.com article. Anonymous sellers, anonymous buyers
 
 \section{Architectural Overview}
-The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated. Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible. Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database. However, we would like to ensure the availability of every user's marketplace by spreading out data. This is done with a distributed hash table (DHT), which provides fault tolerance, scalability, and decentralized autonomy.
+The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated.
+Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible.
+Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database.
+However, we would like to ensure the availability of every user's marketplace by spreading out data.
+This is done with a distributed hash table (DHT), which provides fault tolerance, scalability, and decentralized autonomy.
 
 \subsection{Background on DHT}
-A DHT is a lookup service at heart: it maps file locations (keys) to file data (values). The abstract keyspace -- often a set of 160-bit strings -- is split evenly between the number of nodes. In other words, there are $2^160$ file locations, and each the $n$ participating nodes is responsible for hosting $\frac{2^160}{n}$ files. 
- Like a normal hash table, a DHT maps keys to values, where a key is the hash of a location (e.g., a node identifier) and a value is the data. Unlike a normal hash table, DHTs experience minimal disruption and reshuffling when a node/slot is removed or added, due to consistent hasing.
+A DHT is a lookup service at heart: it maps file locations (keys) to file data (values).
+The abstract keyspace -- often a set of 160-bit strings -- is partitioned between $n$ nodes.
+Ideally, each node owns an equal portion of the keyspace; that is, each node is responsible for hosting files for $\frac{2^{160}}{n}$ potential keys. 
+A DHT employs a function $\delta(k_1, k_2)$ that measures distance between two 160-bit keys, $k_1$ and $k_2$.
+The node whose 160-bit identifier is ``closest'' -- as measured by $\delta(\cdot)$ -- to a key $k_i$ is said to own that key.
+This form of consistent hashing ensures that when a node is added or removed from a system, only the keys owned by adjacent nodes are changed.\footnote{By contrast, a traditional hash table must remap its entire keyspace when a bucket is added or removed.}
+
 
 \subsection{Kademlia DHT}
 We use a Python implementation of the Kademlia DHT.

@@ -48,6 +48,14 @@
 
 \doublespacing
 
+
+
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
 \section{Introduction}
 In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server. To circumvent the problem of a single point of failure, the winners of a hackathon recently unveiled a proof-of-concept for a peer-to-peer version of the Silk Road.
 
@@ -63,12 +71,54 @@ First, it would allow users the convenience of not having to keep their server u
 Second, it increases availability: in the event that a seller's machine crashes, his marketplace is still being hosted by other nodes in the P2P network.
 
 Replication also has two downsides. First, we must ensure that when Bob requests data for Alice's market, he receives the most up-to-date version of her market. We address the challenge of synchronization later.
-% TODO how do we fix the synchronization problem?
+
 Second, replication deincentivizes users from maintaining their servers. That is, what is to stop Bob from powering down his machine if Alice is hosting his marketplace for him? We address this problem by giving users with greater uptime certain perks, such as having to pay less of a commission for an arbiter during transactions.
 
-\section{Architectural Overview}
-The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated. Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible. Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database. However, we would like to ensure the availability of every user's marketplace by spreading out data. This is done with a distributed hash table (DHT).
+\section{How the Market Works}
+% how the market works at a high level
+Paraphrase the wired.com article. Anonymous sellers, anonymous buyers
 
+\section{Architectural Overview}
+The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated. Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible. Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database. However, we would like to ensure the availability of every user's marketplace by spreading out data. This is done with a distributed hash table (DHT), which provides fault tolerance, scalability, and decentralized autonomy.
+
+\subsection{Background on DHT}
+A DHT is a lookup service at heart: it maps file locations (keys) to file data (values). The abstract keyspace -- often a set of 160-bit strings -- is split evenly between the number of nodes. In other words, there are $2^160$ file locations, and each the $n$ participating nodes is responsible for hosting $\frac{2^160}{n}$ files. 
+ Like a normal hash table, a DHT maps keys to values, where a key is the hash of a location (e.g., a node identifier) and a value is the data. Unlike a normal hash table, DHTs experience minimal disruption and reshuffling when a node/slot is removed or added, due to consistent hasing.
+
+\subsection{Kademlia DHT}
 We use a Python implementation of the Kademlia DHT.
+
+
+
+\section{Design Challenges}
+\subsection{Replication}
+\subsection{Synchronization}
+
+
+
+
+
+\section{Implementation}
+% implementation details
+
+\subsection{Current Implementation}
+% describe existing files, crypto, p2p, etc
+
+\subsection{Additions}
+% describe modifications to market, run, tornadoloop, etc
+
+\subsection{Issues}
+
+
+
+
+\section{Evaluation}
+
+
+
+
+\section{Conclusion}
+
+
 
 \end{document}

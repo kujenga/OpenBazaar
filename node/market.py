@@ -154,10 +154,13 @@ class Market(object):
         page_data = proto_page(self._transport._myself.get_pubkey(),
                                         self.mypage, self.signature,
                                         self.nickname)
-        # this publish operation uses the public key of this user as the key for the DHT network
-        # unfortunately, the publishData method hashes this value, so it is not directly used as the key
-        # retreive operation needs to reflect this
-        deferred = self.node.publishData(self._transport._myself.get_pubkey(),page_data)
+
+        # creates a sha1 has of the current public key to get it into hashtable format
+        h = hashlib.sha1()
+        h.update(self._transport._myself.get_pubkey())
+        key = h.digest()
+        
+        deferred = iterativeStore(key, page_data, originalPublisherID = self.node._generateID())
         deferred.addCallbacks(publish_succ, errback = publish_err)
 
 

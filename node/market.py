@@ -139,7 +139,7 @@ class Market(object):
         self.signature = self._transport._myself.sign(tagline)
         '''
 
-	# loads your file in from the DHT *********************************************************
+	# loads your file into the DHT *********************************************************
         # callback functons for DHT input
         def publish_succ(result):
             if (result != None):

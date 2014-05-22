@@ -41,7 +41,7 @@ class CryptoTransportLayer(TransportLayer):
 
         self.nick_mapping = {}
 
-		# load nickname, secret and pubkey from store_file, which is a JSON file in ppl
+        # load nickname, secret and pubkey from store_file, which is a JSON file in ppl
         self.nickname, self.secret, self.pubkey = self.load_crypto_details(store_file)
 
         # Connect to database
@@ -51,7 +51,8 @@ class CryptoTransportLayer(TransportLayer):
 
         self.settings = self._db.settings.find_one({'id':"%s"%market_id})
         self.market_id = market_id
-
+        # commented out to test entangled
+        """
         if self.settings:
             self.nickname = self.settings['nickname'] if self.settings.has_key("nickname") else ""
             self.secret = self.settings['secret']
@@ -63,8 +64,7 @@ class CryptoTransportLayer(TransportLayer):
             hexkey = key.secret.encode('hex')
             self._db.settings.insert({"id":'%s'%market_id, "secret":hexkey, "pubkey":bitcoin.GetPubKey(key._public_key.pubkey, False).encode('hex')})
             self.settings = self._db.settings.find_one({'id':"%s"%market_id})
-
-
+        """
         self._log = logging.getLogger(self.__class__.__name__)
 
     # Return data array with details from the crypto file
@@ -136,7 +136,6 @@ class CryptoTransportLayer(TransportLayer):
     def send_enc(self, uri, msg):
         peer = self._peers[uri]
         pub = peer._pub
-
 
         # Now send a hello message to the peer
         if pub:

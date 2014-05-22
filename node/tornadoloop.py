@@ -64,7 +64,7 @@ class MarketApplication(tornado.web.Application):
             if seed_ip == None:
                 # if no IP address present, finds a text URL address
                 seed_ip = re.search(r"[a-z]*\.[a-z]*\.[a-z]*",suri)
-                knownNodes = [(seed_ip.group(0), my_node_port)]
+            knownNodes = [(seed_ip.group(0), my_node_port)]
         else:
             knownNodes = []
             f = open(node_file, 'r')
@@ -82,8 +82,7 @@ def start_node(store_file, my_market_ip, my_market_port, my_node_port, my_node_f
                                 %(levelname)s - %(message)s',
                         filename=log_file)
 
-    application = MarketApplication(store_file, my_market_ip,
-                                    my_market_port, my_node_port, my_node_file, seed_uri, user_id)
+    application = MarketApplication(store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri, user_id)
 
     error = True
     port = 8888
@@ -124,6 +123,8 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--log_file", default='node.log')
     parser.add_argument("-u", "--userid", default=1)
     args = parser.parse_args()
+
+    print(args)
     start_node(args.store_file, args.my_market_ip,
                args.my_market_port, args.my_node_port, args.my_node_file,
                args.seed_uri, args.log_file, args.userid)

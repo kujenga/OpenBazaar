@@ -1,0 +1,74 @@
+\documentclass[12pt,twocolumn]{article}
+
+\usepackage{usenix}
+\usepackage[utf8]{inputenc}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+\hypersetup{
+    bookmarks=true,         % show bookmarks bar?
+    unicode=false,          % non-Latin characters in Acrobat’s bookmarks
+    pdftoolbar=true,        % show Acrobat’s toolbar?
+    pdfmenubar=true,        % show Acrobat’s menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdftitle={My title},    % title
+    pdfauthor={Author},     % author
+    pdfsubject={Subject},   % subject of the document
+    pdfcreator={Creator},   % creator of the document
+    pdfproducer={Producer}, % producer of the document
+    pdfkeywords={keyword1} {key2} {key3}, % list of keywords
+    pdfnewwindow=true,      % links in new window
+    colorlinks=false,       % false: boxed links; true: colored links
+    linkcolor=red,          % color of internal links (change box color with linkbordercolor)
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
+
+%\title{CSCI 339 OpenBazaar}
+\title{\bf \sc OpenBazaar: \\ A P2P Online Market}
+
+\author{
+    {\rm Kevin Chen '15} \\
+    {\tt kmc3}
+    \and 
+    {\rm Aaron Taylor '16} \\
+    {\tt amt4}
+}
+
+\date{May 2014}
+
+
+
+
+\begin{document}
+
+\maketitle
+
+\doublespacing
+
+\section{Introduction}
+In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server. To circumvent the problem of a single point of failure, the winners of a hackathon recently unveiled a proof-of-concept for a peer-to-peer version of the Silk Road.
+
+Known as OpenBazaar (formerly the DarkMarket), the fork incorporates many of the same features as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour. Still nascent, OpenBazaar has yet to implement several features.
+We choose to implement one key feature.
+
+Replication.
+
+The data for a seller's marketplace and ratings should be replicated across several nodes.
+
+Replication brings two main advantages.
+First, it would allow users the convenience of not having to keep their server up constantly if they want buyers to see their wares.
+Second, it increases availability: in the event that a seller's machine crashes, his marketplace is still being hosted by other nodes in the P2P network.
+
+Replication also has two downsides. First, we must ensure that when Bob requests data for Alice's market, he receives the most up-to-date version of her market. We address the challenge of synchronization later.
+% TODO how do we fix the synchronization problem?
+Second, replication deincentivizes users from maintaining their servers. That is, what is to stop Bob from powering down his machine if Alice is hosting his marketplace for him? We address this problem by giving users with greater uptime certain perks, such as having to pay less of a commission for an arbiter during transactions.
+
+\section{Architectural Overview}
+The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated. Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible. Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database. However, we would like to ensure the availability of every user's marketplace by spreading out data. This is done with a distributed hash table (DHT).
+
+We use a Python implementation of the Kademlia DHT.
+
+\end{document}

@@ -141,7 +141,24 @@ This is yet another advantage a DHT holds over a traditional hash table, which r
 \subsection{Why Kademlia?}
 There are many different kinds of DHTs out there. They differ in the size of their address space (128- or 160-bit keys?), in the type of hash function is used (SHA-1, SHA-2, etc.), in what gets hashed to produce keys (file names, file contents, etc.), in redundancy and reliability (nodes can dynamically agree to store the same key, just in case one them crashes), in the way traffic is routed, and in many other ways.
 
-We opt for the Kademlia DHT.
+We opt for the Kademlia DHT, which has several unique features.
+First, it requires minimal configuration.
+When a node wants to join a network, little else is required of it than to perform a self-lookup.
+By performing a query, the requester becomes aware of all the nodes that exist between it and the request's intended recipient.
+
+
+Second, this frequently updated awareness affords nodes the ability to route their queries through low-latency paths.
+And although knowledge spreads like the plague, there is a natural defense against denial of service attacks, since a node can only know about a limited number of other nodes.
+
+Third, not only can Kademlia nodes select low-latency routes, but they can also send parallel asynchronous queries to avoid timeout delays.
+
+Fourth, Kademlia features bidirectional routing, as opposed to unidirectional routing.
+This is a natural consequence of using \emph{bitwise exclusive or} (XOR) as its distance function: that is, $\delta(x,y) = x \oplus y$.
+XOR bears the property of symmetry: $\delta(x,y) = \delta(y,x)$.
+This means that you may query those you know about, and those you know about may query you.
+% TODO why does symmetry let you perform asynchronous queries?
+
+One of the biggest differences between Kademlia and other DHTs is that the keys are the hashed node IDs instead of hashed filenames or hashed file contents.
 We use a Python implementation of the Kademlia DHT.
 
 

@@ -10,7 +10,7 @@ SEED_URI=tcp://seed.openbazaar.org:12345
 MY_NODE_FILE=shop/local_nodes
 
 # Run in local test mode if not production
-MODE=production
+MODE=$1
 
 # Store config file
 STOREFILE=ppl/default
@@ -33,13 +33,13 @@ if [ $MODE == production ]; then
 
 	
     #$PYTHON node/tornadoloop.py $STOREFILE $MY_MARKET_IP -s $SEED_URI -p $MY_MARKET_PORT -n $MY_NODE_PORT -l $LOGDIR/node.log &
-    $PYTHON ident/identity.py &
+    #$PYTHON ident/identity.py &
     $PYTHON node/tornadoloop.py $STOREFILE $MY_MARKET_IP -s $SEED_URI -p $MY_MARKET_PORT -n $MY_NODE_PORT -f $MY_NODE_FILE -l $LOGDIR/node.log -u 1 &
 
 else
 
     # Primary Market - No SEED_URI specified 
-    $PYTHON node/tornadoloop.py $STOREFILE 127.0.0.1 -n $MY_NODE_PORT -f $MY_NODE_FILE -l $LOGDIR/demo_node1.log -u 1 &
+    $PYTHON node/tornadoloop.py $STOREFILE 127.0.0.1 -n 47771 -f $MY_NODE_FILE -l $LOGDIR/demo_node1.log -u 1 &
     
     # Demo Peer Market
     sleep 2

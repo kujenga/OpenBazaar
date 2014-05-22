@@ -40,7 +40,7 @@ class MarketApplication(tornado.web.Application):
         self.node = entangled.node.EntangledNode(udpPort=my_node_port, dataStore=dataStore)
         # needs some entry point into the ring, see TODO above
         self.node.joinNetwork(known_nodes)
-        self.market = Market(self.transport,self.node)
+        self.market = Market(self.transport,self.node,store_file)
 
         handlers = [
             (r"/", MainHandler),

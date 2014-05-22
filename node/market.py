@@ -23,7 +23,7 @@ from entangled.kademlia.datastore import SQLiteDataStore
 
 class Market(object):
 
-    def __init__(self, transport, node):
+    def __init__(self, transport, node, store_file):
 
         self._log = logging.getLogger(self.__class__.__name__)
         self._log.info("Initializing")
@@ -42,6 +42,8 @@ class Market(object):
         self.nicks = {}
         self.pages = {}
 
+        # store file
+        self.store_file = store_file
         # assign Entangled Node to global
 	self.node = node
 
@@ -127,24 +129,26 @@ class Market(object):
         assert "desc" in data
         nickname = data["nickname"]
         desc = data["desc"]
-
+                
         # unused mongodb ish from upstream merge
         '''
         nickname = self.settings['nickname'] if self.settings.has_key("nickname") else ""
         storeDescription = self.settings['storeDescription'] if self.settings.has_key("storeDescription") else ""
-
-        tagline = "%s: %s" % (nickname, storeDescription)
+        '''
+        tagline = "%s: %s" % (nickname, desc) #, storeDescription)
         self.mypage = tagline
         self.nickname = nickname
         self.signature = self._transport._myself.sign(tagline)
-        '''
+        
 
 	# loads your file into the DHT *********************************************************
         # callback functons for DHT input
         def publish_succ(result):
+            print("sucessfully published page into DHT!")
             if (result != None):
                 self._log.info("DHT publish result: " + result)
         def publish_err(error):
+            print("failed to publish page into DHT :(")
             self._log.info("DHT publish error: " + error)
         # publish local site into the DHT
         page_data = proto_page(self._transport._myself.get_pubkey(),
@@ -156,7 +160,6 @@ class Market(object):
         deferred = self.node.publishData(self._transport._myself.get_pubkey(),page_data)
         deferred.addCallbacks(publish_succ, errback = publish_err)
 
-        self._log.info("Tagline signature: " + self.signature.encode("hex"))
 
         if welcome:
             self._db.settings.update({}, {"$set":{"welcome":"noshow"}})
@@ -164,9 +167,7 @@ class Market(object):
             self.welcome = False
 
 
-        #self._log.info("Tagline signature: " + self.signature.encode("hex"))
-
-
+        self._log.info("Tagline signature: " + self.signature.encode("hex"))
 
 
 
@@ -174,6 +175,7 @@ class Market(object):
 
     # Alter these significantly to use the DHT +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     def query_page(self, pubkey):
+        print("querying for page")
         # remove the next line when possible
         #self._transport.send(query_page(pubkey))
         # creates a sha1 has of the current public key to get it into the format used by the publishData method in load_pagex
@@ -184,13 +186,19 @@ class Market(object):
         # callbacks for entangled node interactions
         def retrieved_page(result):
             # parses in retreived page and stores it locally in self.pages
-            page = result[key]
-            self._log.info("for key: "+key+" iteratve find returned result: "+" ".join(result))
-            pubkey_in = page.get('pubkey')
-            page_in = page.get('text')
+            if (len(result) > 0):
+                print("retrieved page "+" ".join(result))
+                self._log.info("for key: "+key+" iteratve find returned result: "+" ".join(result))
+                page = result[0]
+                pubkey_in = page.get('pubkey')
+                page_in = page.get('text')
+                
+                if pubkey_in and page_in:
+                    self.pages[pubkey_in] = page_in
+            else:
+                print("failed to retrieve any pages")
+                self._log.info("for key: "+key+" iteratve find returned nothing")
             
-            if pubkey_in and page_in:
-                self.pages[pubkey_in] = page_in
         # searches for the value associated with sha1 has of the pubkey for the specified nodex
         df = self.node.iterativeFindValue(key)
         df.addCallback(retrieved_page)

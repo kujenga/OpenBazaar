@@ -145,11 +145,11 @@ class Market(object):
 	# loads your file into the DHT *********************************************************
         # callback functons for DHT input
         def publish_succ(result):
-            print("sucessfully published page into DHT!")
+            print("DHT iterativeStore operation completed with result: ~"+" ".join(result)+"~")
             if (result != None):
                 self._log.info("DHT publish result: " + " ".join(result))
         def publish_err(error):
-            print("failed to publish page into DHT :(")
+            print("error while publishing page into DHT :(")
             self._log.info("DHT publish error: " + error)
         # publish local site into the DHT
         page_data = proto_page(self._transport._myself.get_pubkey(),

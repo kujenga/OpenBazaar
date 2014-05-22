@@ -26,20 +26,21 @@ class MainHandler(tornado.web.RequestHandler):
 class MarketApplication(tornado.web.Application):
 
     def __init__(self, store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri, market_id):
-
+        import twisted.internet.reactor
+        
         self.transport = CryptoTransportLayer(my_market_ip,
                                               my_market_port,
                                               market_id,
                                               store_file)
         self.transport.join_network(seed_uri)
-        # TODO: would be nice to have persistent data storage, create a database if one doesn't exist
-        dataStore = SQLiteDataStore() #'/shop/sites.sqlite')
-        # TODO: need a way to cache more of these persistently and load each time
-        known_nodes = self.known_entangled_nodes(my_node_file,seed_uri)
+        # TODO: should have persistent data storage, or create a database if one doesn't exist
+        dataStore = SQLiteDataStore()
+        known_nodes = self.known_entangled_nodes(my_node_file,seed_uri,my_node_port)
         # initializes node with specified port and an in-memory SQLite database
         self.node = entangled.node.EntangledNode(udpPort=my_node_port, dataStore=dataStore)
-        # needs some entry point into the ring, see TODO above
+        # sjoins the Kademlia DHT network
         self.node.joinNetwork(known_nodes)
+
         self.market = Market(self.transport,self.node,store_file)
 
         handlers = [
@@ -53,18 +54,22 @@ class MarketApplication(tornado.web.Application):
         # TODO: Move debug settings to configuration location
         settings = dict(debug=True)
         tornado.web.Application.__init__(self, handlers, **settings)
+        twisted.internet.reactor.run()
 
     def get_transport(self):
         return self.transport
 
-    def known_entangled_nodes(self,node_file,seed_uri):
+    # creates list of known node tuples either from node_file or the seed_uri
+    def known_entangled_nodes(self,node_file,seed_uri,node_port):
         if node_file == None:
+            if seed_uri == None:
+                return None
             # finds IP addresses in the seed_uri
             seed_ip = re.search(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}",seed_uri)
             if seed_ip == None:
                 # if no IP address present, finds a text URL address
                 seed_ip = re.search(r"[a-z]*\.[a-z]*\.[a-z]*",suri)
-            knownNodes = [(seed_ip.group(0), my_node_port)]
+            knownNodes = [(seed_ip.group(0), 47771)]
         else:
             knownNodes = []
             f = open(node_file, 'r')
@@ -93,8 +98,7 @@ def start_node(store_file, my_market_ip, my_market_port, my_node_port, my_node_f
         except:
             port += 1
 
-    logging.getLogger().info("Started user app at http://%s:%s"
-                             % (my_market_ip, port))
+    logging.getLogger().info("Started user app at http://%s:%s" % (my_market_ip, port))
 
     # handle shutdown
     def shutdown(x, y):
@@ -118,7 +122,7 @@ if __name__ == "__main__":
                         help="You need to specify an IP address for your market")
     parser.add_argument("-p", "--my_market_port", type=int, default=12345)
     parser.add_argument("-n", "--my_node_port", type=int, default=54321)
-    parser.add_argument("-f", "--my_node_file", default='shop/nodes')
+    parser.add_argument("-f", "--my_node_file", default=None)
     parser.add_argument("-s", "--seed_uri")
     parser.add_argument("-l", "--log_file", default='node.log')
     parser.add_argument("-u", "--userid", default=1)

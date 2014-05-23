@@ -50,6 +50,26 @@
 \doublespacing
 
 
+\newcommand{\OpenBazaar}{}
+\def\OpenBazaar/{{\sc OpenBazaar}}
+
+\newcommand{\Entangled}{}
+\def\Entanbled/{{\sc Entangled}}
+
+\newcommand{\Kademlia}{}
+\def\Kademlia/{{\sc Kademlia}}
+
+\newcommand{\Twisted}{}
+\def\Twisted/{{\sc Twisted}}
+
+\newcommand{\Tornado}{}
+\def\Tornado/{{\sc Tornado}}
+
+\newcommand{\reactor}{}
+\def\reactor/{{\sc reactor}}
+
+\newcommand{\ZMQ}{}
+\def\ZMQ/{\O{}MQ}
 
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
@@ -61,8 +81,8 @@
 In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server. They were able to 
 To circumvent the problem of a single point of failure, the winners of a hackathon recently unveiled a proof-of-concept for a peer-to-peer version of the Silk Road.
 
-Known as OpenBazaar (formerly the DarkMarket), this service incorporates many of the same user experience paradigms as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour. Each piece of the system is covered with layers of encryption, based on the bitcoin protocols and elliptic curve cryptography, to ensure that all communications are secure, all transactions are properly mediated, and all identities are correctly verified.
-Still nascent, OpenBazaar has yet to implement several features that would enable the service to enter production mode and be delivered to users.
+Known as \OpenBazaar/ (formerly the DarkMarket), this service incorporates many of the same user experience paradigms as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour. Each piece of the system is covered with layers of encryption, based on the bitcoin protocols and elliptic curve cryptography, to ensure that all communications are secure, all transactions are properly mediated, and all identities are correctly verified.
+Still nascent, \OpenBazaar/ has yet to implement several features that would enable the service to enter production mode and be delivered to users.
 
 As the current system currently stands, in order for a seller to maintain a page, they basically need to maintain an active server with a fixed IP address that other users of the network can connect to in order to view their product offerings and initiate transactions. This is less than ideal for a number of reasons. What has lead to the sucess of other online marketplace systems such as eBay, Craigslist, and even the silk road, was or is the ease with which users can post post items for sale and oder items from other sellers. The current system has a large amount of setup due to the direct peer-to-peer nature of the system. We wanted to emulate the convenience and simplicity of an environment hosted on a central server within the peer to peer network. We worked on scheiving this by replicating user sites across the network using a distributed hash table with data replication to consistently determine their location.
 
@@ -77,7 +97,7 @@ First, we must ensure that when Bob requests data for Alice's market, he receive
 Second, replication disincentivizes users from maintaining their servers. That is, what is to stop Bob from powering down or disconnecting his machine with great frequency if Alice is hosting his marketplace for him? We address this problem by giving users with greater hosting uptime in the network certain perks and community incentives, such as paying smaller commissions to the third party arbiter during transactions, and positive or negative indicators in the reviews section attached to each user.
 
 \section{How it works}
-A user downloads the market software, which runs a daemon in the background and allows a user to become a node in a distributed network with a P2P library known as ZeroMQ. 
+A user downloads the market software, which runs a daemon in the background and allows a user to become a node in a distributed network with a P2P library known as ZeroMQ, or \ZMQ/. 
 
 For Alice to become a seller, she can edit an HTML file designated as her seller page.
 Then a buyer like Bob can browse the market, which he runs via web browser.
@@ -98,7 +118,7 @@ Ratings are cryptographically signed with the rater's private key, which prevent
 Sellers with better ratings will naturally attract more buyers. 
 
 \section{Architectural Overview}
-The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated.
+The \href{https://github.com/OpenBazaar/OpenBazaar}{{\OpenBazaar/} repository} is incipient but constantly being updated.
 Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible.
 Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database.
 However, we would like to ensure the availability of every user's marketplace by spreading out data.

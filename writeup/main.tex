@@ -58,28 +58,23 @@
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Introduction}
-In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server.
+In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server. They were able to 
 To circumvent the problem of a single point of failure, the winners of a hackathon recently unveiled a proof-of-concept for a peer-to-peer version of the Silk Road.
 
-Known as OpenBazaar (formerly the DarkMarket), the fork incorporates many of the same features as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour.
-Still nascent, OpenBazaar has yet to implement several features.
-We choose to implement one key feature.
+Known as OpenBazaar (formerly the DarkMarket), this service incorporates many of the same user experience paradigms as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour. Each piece of the system is covered with layers of encryption, based on the bitcoin protocols and elliptic curve cryptography, to ensure that all communications are secure, all transactions are properly mediated, and all identities are correctly verified.
+Still nascent, OpenBazaar has yet to implement several features that would enable the service to enter production mode and be delivered to users.
 
-Replication.
+As the current system currently stands, in order for a seller to maintain a page, they basically need to maintain an active server with a fixed IP address that other users of the network can connect to in order to view their product offerings and initiate transactions. This is less than ideal for a number of reasons. What has lead to the sucess of other online marketplace systems such as eBay, Craigslist, and even the silk road, was or is the ease with which users can post post items for sale and oder items from other sellers. The current system has a large amount of setup due to the direct peer-to-peer nature of the system. We wanted to emulate the convenience and simplicity of an environment hosted on a central server within the peer to peer network. We worked on scheiving this by replicating user sites across the network using a distributed hash table with data replication to consistently determine their location.
 
-The data for a seller's marketplace and ratings should be replicated across several nodes.
+In order for this system to work, the data for a seller's marketplace and ratings should be replicated across several nodes, the data must maintain its integrity and be mutable only by the person who published it, and it must be able to be accessed quickly by the users of the system.
 
-Replication brings two main advantages.
+We intend to implement a system of replication that brings two main advantages.
 First, it would allow users the convenience of not having to keep their server up constantly if they want buyers to see their wares.
-Second, it increases availability: in the event that a seller's machine crashes, his marketplace is still being hosted by other nodes in the P2P network.
+Second, it increases availability: in the event that a seller's machine or otherwise needs to go offline, his or her marketplace is being hosted by other nodes in the P2P network.
 
 Replication also has two downsides.
-First, we must ensure that when Bob requests data for Alice's market, he receives the most up-to-date version of her market.
-We address the challenge of synchronization later.
-
-Second, replication deincentivizes users from maintaining their servers.
-That is, what is to stop Bob from powering down his machine if Alice is hosting his marketplace for him?
-We address this problem by giving users with greater uptime certain perks, such as having to pay less of a commission for an arbiter during transactions.
+First, we must ensure that when Bob requests data for Alice's market, he receives the most up-to-date version of her market. We address the challenge of synchronization later.
+Second, replication disincentivizes users from maintaining their servers. That is, what is to stop Bob from powering down or disconnecting his machine with great frequency if Alice is hosting his marketplace for him? We address this problem by giving users with greater hosting uptime in the network certain perks and community incentives, such as paying smaller commissions to the third party arbiter during transactions, and positive or negative indicators in the reviews section attached to each user.
 
 \section{How it works}
 A user downloads the market software, which runs a daemon in the background and allows a user to become a node in a distributed network with a P2P library known as ZeroMQ. 
@@ -217,19 +212,17 @@ We use a Python implementation of the Kademlia DHT.
 
 
 
-
-
 \section{Implementation}
-% implementation details
+Our implementation of this system began with reading through the source code and limited documentation of the various pieces of what was to be in our final system and understanding how each of the pieces worked and interacted. Running the actual server for the nodes is an implementation called tornado, that handles the creation of a webserver and the majority of the transport layer. The OpenBazaar p2p interactions run on a network library called zeromq that handles most of the peer-to-peer setup and network maintenance between the nodes in the system. The system is designed fairly sensibly, with the various cryptographic components separated out into seperate modules from the core market interactions. The website itself is accessed through a browser, typically at {{\sc localhost:8888}}, and is a fairly straightforward html and javascript site that allows for updates to your own market and provides a GUI for interaction with other sites in the network.
 
 \subsection{Current Implementation}
-% describe existing files, crypto, p2p, etc
+The current implementation is evolving rapidly with contributions from the open-source community, but the basic structure of the codebase has remained relatively the same. The majority of the market interactions are implemented in the node folder. Files within here create the various networking compnents, including event handlers and protocol implementations, that allow the market to function on its lowest layer. 
 
 \subsection{Additions}
 % describe modifications to market, run, tornadoloop, etc
 
 \subsection{Issues}
-
+Once we had gotten over the hurdle of understanding how the various components of the existing codebase functioned, the codebase implementation of handling the API calls was fairly straightforward
 
 
 

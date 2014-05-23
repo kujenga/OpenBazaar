@@ -28,7 +28,7 @@
 }
 
 %\title{CSCI 339 OpenBazaar}
-\title{\bf \sc OpenBazaar: \\ A P2P Online Market}
+\title{\bf \sc OpenBazaar: \\ an online peer-to-peer market}
 
 \author{
     {\rm Kevin Chen '15} \\
@@ -50,6 +50,26 @@
 \doublespacing
 
 
+\newcommand{\OpenBazaar}{}
+\def\OpenBazaar/{{\sc OpenBazaar}}
+
+\newcommand{\Entangled}{}
+\def\Entanbled/{{\sc Entangled}}
+
+\newcommand{\Kademlia}{}
+\def\Kademlia/{{\sc Kademlia}}
+
+\newcommand{\Twisted}{}
+\def\Twisted/{{\sc Twisted}}
+
+\newcommand{\Tornado}{}
+\def\Tornado/{{\sc Tornado}}
+
+\newcommand{\reactor}{}
+\def\reactor/{{\sc reactor}}
+
+\newcommand{\ZMQ}{}
+\def\ZMQ/{\O{}MQ}
 
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
@@ -61,8 +81,8 @@
 In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server. They were able to 
 To circumvent the problem of a single point of failure, the winners of a hackathon recently unveiled a proof-of-concept for a peer-to-peer version of the Silk Road.
 
-Known as OpenBazaar (formerly the DarkMarket), this service incorporates many of the same user experience paradigms as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour. Each piece of the system is covered with layers of encryption, based on the bitcoin protocols and elliptic curve cryptography, to ensure that all communications are secure, all transactions are properly mediated, and all identities are correctly verified.
-Still nascent, OpenBazaar has yet to implement several features that would enable the service to enter production mode and be delivered to users.
+Known as \OpenBazaar/ (formerly the DarkMarket), this service incorporates many of the same user experience paradigms as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour. Each piece of the system is covered with layers of encryption, based on the bitcoin protocols and elliptic curve cryptography, to ensure that all communications are secure, all transactions are properly mediated, and all identities are correctly verified.
+Still nascent, \OpenBazaar/ has yet to implement several features that would enable the service to enter production mode and be delivered to users.
 
 As the current system currently stands, in order for a seller to maintain a page, they basically need to maintain an active server with a fixed IP address that other users of the network can connect to in order to view their product offerings and initiate transactions. This is less than ideal for a number of reasons. What has lead to the sucess of other online marketplace systems such as eBay, Craigslist, and even the silk road, was or is the ease with which users can post post items for sale and oder items from other sellers. The current system has a large amount of setup due to the direct peer-to-peer nature of the system. We wanted to emulate the convenience and simplicity of an environment hosted on a central server within the peer to peer network. We worked on scheiving this by replicating user sites across the network using a distributed hash table with data replication to consistently determine their location.
 
@@ -77,7 +97,7 @@ First, we must ensure that when Bob requests data for Alice's market, he receive
 Second, replication disincentivizes users from maintaining their servers. That is, what is to stop Bob from powering down or disconnecting his machine with great frequency if Alice is hosting his marketplace for him? We address this problem by giving users with greater hosting uptime in the network certain perks and community incentives, such as paying smaller commissions to the third party arbiter during transactions, and positive or negative indicators in the reviews section attached to each user.
 
 \section{How it works}
-A user downloads the market software, which runs a daemon in the background and allows a user to become a node in a distributed network with a P2P library known as ZeroMQ. 
+A user downloads the market software, which runs a daemon in the background and allows a user to become a node in a distributed network with a P2P library known as ZeroMQ, or \ZMQ/. 
 
 For Alice to become a seller, she can edit an HTML file designated as her seller page.
 Then a buyer like Bob can browse the market, which he runs via web browser.
@@ -98,13 +118,15 @@ Ratings are cryptographically signed with the rater's private key, which prevent
 Sellers with better ratings will naturally attract more buyers. 
 
 \section{Architectural Overview}
-The \href{https://github.com/OpenBazaar/OpenBazaar}{{\tt OpenBazaar} repository} is incipient but constantly being updated.
+The \href{https://github.com/OpenBazaar/OpenBazaar}{{\OpenBazaar/} repository} is incipient but constantly being updated.
 Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible.
 Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database.
 However, we would like to ensure the availability of every user's marketplace by spreading out data.
 This is done with a distributed hash table (DHT), which provides fault tolerance, scalability, and decentralized autonomy.
 
 \subsection{What is a DHT?}
+\newcommand{\kv}{}
+\def\kv/{$\langle$key,value$\rangle$}
 A DHT is just a distributed dictionary; that is, hash table buckets are nodes across a network.
 Just like any other lookup service, it maps keys to values.
 In this case, the keys are hashed files or hashed file locations, and the values are the files themselves.
@@ -150,7 +172,7 @@ Third, not only can Kademlia nodes select low-latency routes, but they can also 
 
 Fourth, Kademlia features unidirectional routing, as opposed to bidirectional routing.
 All node lookups and value lookups are guaranteed to converge on the same path, regardless of the requester.
-Thus, caching key/value pairs along a path will reduce latency.
+Thus, caching \kv/ pairs along a path will reduce latency.
 Unidirectionality is a consequence of using a symmetric distance function, namely \emph{bitwise exclusive or} (XOR).
 That is, the distance function is denoted by $\delta(x,y) = x \oplus y$, and its property of symmetry is denoted by $\delta(x,y) = \delta(y,x)$.\footnote{In Kademlia, the distance between two nodes is computed by taking the XOR of their two node IDs.}
 
@@ -179,7 +201,7 @@ However, there is a limit to how large a $k$-bucket can get: that limit is deter
 This least-recently seen eviction policy has two main advantages. First, it is a natural defense against flooding attacks, like DDoS, since the $k$-buckets are capped in size. Second, the preference for old contacts has been empirically shown to have availability benefits: the longer a node has been up, the more likely it is to stay up for another hour.
 
 \subsubsection{Protocol}
-% To make sure that def isn't already defined 
+
 \newcommand{\findNode}{}
 \def\findNode/{{\sc find\_node}}
 \newcommand{\findValue}{}
@@ -193,16 +215,19 @@ The Kademlia protocol is comprised of four main RPC calls: \ping/, \store/, \fin
 
 The \ping/ RPC checks to see if a node is online and, as previously mentioned, is used when a $k$-bucket is full and a node wants the status of the least-recently seen peer in that bucket.
 
-\store/ tells a node to store a key/value pair.
+\store/ tells a node to store a \kv/ pair.
 
 The \findNode/ RPC takes a 160-bit node ID as an argument and returns the $k$ nodes that are closest to the target ID. \findValue/ works much like \findNode/, except the recipient of a \findValue/ RPC will return a stored value if it has received a \store/ RPC for the key.
 
 Underlying these RPCs is the most important and most complex operation in Kademlia: node lookup. This entails locating the $k$ nodes closest to a given node ID. The lookup initiator starts by picking $\alpha = 3$ nodes from its closest non-empty $k$-bucket (remember that the closest $k$-buckets will probably be empty) and then sends parallel, asynchronous \findNode/ RPCs to the $\alpha$ nodes. Following those \findNode/ RPCs, the initiator will become privy to new nodes and can query those. If a round of queries does not return a single node closer to the target node, then the initiator queries nodes that have not already been queried. The lookup ends when it can find nothing closer and when the $k$ closest nodes have all responded.
 
-Node lookup is used in the \store/ RPC for replication. When a key/value pair is stored at a particular target node, it is also stored at the $k$ closest peers of that target node. Replica entries are kept fresh since nodes republish their key/value pairs on the hour, and since entries will expire after 24 hours to limit stale data. Finally, when node $a$ encounters another node $b$ that is closer to some of $a$'s key/value pairs, $a$ replicates them over to $b$.
+Node lookup is used in the \store/ RPC for replication. When a \kv/ pair is stored at a particular target node, it is also stored at the $k$ closest peers of that target node. Replica entries are kept fresh since nodes republish their \kv/ pairs on the hour, and since entries will expire after 24 hours to limit stale data. Finally, when node $a$ encounters another node $b$ that is closer to some of $a$'s \kv/ pairs, $a$ replicates them over to $b$.
 
 \section{Entangled}
-We use a Python implementation of the Kademlia DHT.
+\newcommand{\delete}{}
+\def\delete/{{\sc delete}}
+We use Entangled, a Python implementation of the Kademlia DHT.
+In addition, Entangled also features a \delete/ RPC for deleting \kv/ pairs from the DHT, a fully distributed peer-to-peer tuple space, and keyword-based operations, such as publish, search and remove.
 
 
 
@@ -221,18 +246,47 @@ The current implementation is evolving rapidly with contributions from the open-
 \subsection{Additions}
 % describe modifications to market, run, tornadoloop, etc
 
+\newcommand{\Twisted}{}
+\def\Twisted/{{\sc Twisted}}
+\newcommand{\Tornado}{}
+\def\Tornado/{{\sc Tornado}}
+\newcommand{\Entangled}{}
+\def\Entangled/{{\sc Entangled}}
+
 \subsection{Issues}
-Once we had gotten over the hurdle of understanding how the various components of the existing codebase functioned, the codebase implementation of handling the API calls was fairly straightforward
 
+\subsubsection{Understanding the codebase}
+The first major issue we had was understanding a very large codebase with little documentation. The OpenBazaar project was eveling rapidly, and from the first version right out of the Hackathon that we had began to understand, there were continuing changed being made as we were coming to understand it. It was impossible to read all of the existing code, so we first worked on determining the function of the various high-level modules in the codebase, broken up into folders. We avoided in-depth readings of the low-level cryptographic implementations, focusing just on the method headers, and worked towards a summary understanding of the peer-to-peer interactions of the existing system. Where we spent most of out time was on the market interactions where we would be implementing our desired functionality.
 
+In this manner, we were able to make sense of a codebase tens of thousands of lines long to implement our own functionality within it. The methodology we found useful was fining a starting point, in our case the launch point for the application, and then following the method calls and initializations to understand the connections between the various pieces of the program.
+
+\subsubsection{Conflicting Systems}
+Once we had gotten over the hurdle of understanding how the various components of the existing codebase functioned, figuring out how to utilize the \Entangled/ APIs to create the functionality we wanted was not too difficult. The function calls created straightforward ways to publish and remove data from the network, and retreive it as desired. However, out of the box the \Entangled/ implementation used a different networking engine than the rest of the OpenBazaar project, which created frustrating conflicts in getting that network up and running.
+
+The root of our main problem was that two network event listening loops cannot both be running in the main thread. The OpenBazaar project was set up to be running a loop from the \Tornado/ library, which handled all its incoming requests and outgoing messages as it should. The \Entangled/ nodes relied on an instance of a module called a {{\sc reactor}} from the \Twisted/ python library in order to handle its network interactions.
+
+There is little information in the \Entangled/ documentation about what components of the \Twisted/ library are required to be running for the \Entangled/ nodes to begin functioning. In the example programs provided with the \Entangled/ source code, the only visible use of the \Twisted/ library is unrelated to the DHT, and involves the direct connections in the application-specific function of filesharing. Initially, I had thought that the reactor was unnecessary for just running the DHT, which lead me to eliminate all other possible sources of issues until I was lead back to the same line I had commented out earlier as the only deviation in my implementation. In hindsight, it makes sense that the nodes need an event listener, and overlooking that fact was due to both my relative inexperience in python and a lack of specificity in the \Entangled/ documentation.
+
+However, that merely brought me back to the same issue that had lead to the removal of that line of code in the first place. My initial plan was to run one of the event loops in the seperate thread. However, because of the way signals from the operating system are handled in python, both of the loops demand to be run in the main thread, and produce a variety of error messages to this effect if you try to implement them in a manner otherwise. Additionally, due to the interconnected nature of the \Entangled/ node and the market node, running one in a seperate process would just have made a bad situation worse, with extra layers of complexity necessitated for inter-process communication.
+
+\subsubsection{Conflict Resolution}
+As somewhat of a logjam, I dove into the sourcecode for the \Tornado/ and \Twisted/ libraries, looking for any commonality in the event loops that could be exploited. As it turns out, we were not the first to have this problem, and buried within the configuration options for \Tornado/ were two options for bridges between the \Twisted/ reactor event loop, and the \Tornado/ IOloop. One of these replaced the builtin \Tornado/ IOloop with the twisted reactor and reimplemented the \Tornado/ IOloop API onto of the resulting twisted reactor. This allowed for the \Entangled/ nodes to interact with the underlying reactor, and for the rest of the existing application to interface with the \Tornado/ API built ontop of it.
+
+Happily, this solution worked, allowing the entangled nodes to connect to one another and effectively combining the two seperate nodes in the previous conception of the system into a single one, running on the same event loop in the same thread.
+
+After this solution was found, a few details remained to be ironed out with out untested implementation of the Entangled node interactions through API calls. Entangled encodes the data passed into the DHT...
 
 \section{Evaluation}
+Using evaluation tools in launch.py
+
+pretty graphs...
 
 
-
+\section{Outside Work}
+Interestingly, while we have been implementing our fork of this project, the person who has taken over primary development of project on github has begun some limited work on implementing a version of the Kademlia DHT. The branch on github is fairly limited, currently containing an implementation of the Kademlia Datastore and a few placeholders for where future code may go, but the similarity in our ideas is interesting.
 
 \section{Conclusion}
 
-
+we are super hackers!
 
 \end{document}

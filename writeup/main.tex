@@ -183,7 +183,20 @@ However, there is a limit to how large a $k$-bucket can get: that limit is deter
 
 This least-recently seen eviction policy has two main advantages. First, it is a natural defense against flooding attacks, like DDoS, since the $k$-buckets are capped in size. Second, the preference for old contacts has been empirically shown to have availability benefits: the longer a node has been up, the more likely it is to stay up for another hour.
 
-One of the biggest differences between Kademlia and other DHTs is that the keys are the hashed node IDs instead of hashed filenames or hashed file contents.
+\subsubsection{Protocol}
+\def\findNode{{\sc find\_node}}
+\def\findValue{{\sc find\_value}}
+\def\ping{{\sc ping}}
+\def\store{{\sc store}}
+
+The Kademlia protocol is comprised of four main RPC calls: \ping, \store, \findNode, and \findValue.
+
+The \ping RPC checks to see if a node is online and, as previously mentioned, is used when a $k$-bucket is full and a node wants the status of the least-recently seen peer in that bucket.
+
+\findNode
+
+
+\section{Entangled}
 We use a Python implementation of the Kademlia DHT.
 
 

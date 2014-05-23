@@ -28,7 +28,7 @@
 }
 
 %\title{CSCI 339 OpenBazaar}
-\title{\bf \sc OpenBazaar: \\ A P2P Online Market}
+\title{\bf \sc OpenBazaar: \\ an online peer-to-peer market}
 
 \author{
     {\rm Kevin Chen '15} \\
@@ -105,6 +105,8 @@ However, we would like to ensure the availability of every user's marketplace by
 This is done with a distributed hash table (DHT), which provides fault tolerance, scalability, and decentralized autonomy.
 
 \subsection{What is a DHT?}
+\newcommand{\kv}{}
+\def\kv/{$\langle$key,value$\rangle$}
 A DHT is just a distributed dictionary; that is, hash table buckets are nodes across a network.
 Just like any other lookup service, it maps keys to values.
 In this case, the keys are hashed files or hashed file locations, and the values are the files themselves.
@@ -150,7 +152,7 @@ Third, not only can Kademlia nodes select low-latency routes, but they can also 
 
 Fourth, Kademlia features unidirectional routing, as opposed to bidirectional routing.
 All node lookups and value lookups are guaranteed to converge on the same path, regardless of the requester.
-Thus, caching key/value pairs along a path will reduce latency.
+Thus, caching \kv/ pairs along a path will reduce latency.
 Unidirectionality is a consequence of using a symmetric distance function, namely \emph{bitwise exclusive or} (XOR).
 That is, the distance function is denoted by $\delta(x,y) = x \oplus y$, and its property of symmetry is denoted by $\delta(x,y) = \delta(y,x)$.\footnote{In Kademlia, the distance between two nodes is computed by taking the XOR of their two node IDs.}
 
@@ -179,7 +181,7 @@ However, there is a limit to how large a $k$-bucket can get: that limit is deter
 This least-recently seen eviction policy has two main advantages. First, it is a natural defense against flooding attacks, like DDoS, since the $k$-buckets are capped in size. Second, the preference for old contacts has been empirically shown to have availability benefits: the longer a node has been up, the more likely it is to stay up for another hour.
 
 \subsubsection{Protocol}
-% To make sure that def isn't already defined 
+
 \newcommand{\findNode}{}
 \def\findNode/{{\sc find\_node}}
 \newcommand{\findValue}{}
@@ -193,16 +195,19 @@ The Kademlia protocol is comprised of four main RPC calls: \ping/, \store/, \fin
 
 The \ping/ RPC checks to see if a node is online and, as previously mentioned, is used when a $k$-bucket is full and a node wants the status of the least-recently seen peer in that bucket.
 
-\store/ tells a node to store a key/value pair.
+\store/ tells a node to store a \kv/ pair.
 
 The \findNode/ RPC takes a 160-bit node ID as an argument and returns the $k$ nodes that are closest to the target ID. \findValue/ works much like \findNode/, except the recipient of a \findValue/ RPC will return a stored value if it has received a \store/ RPC for the key.
 
 Underlying these RPCs is the most important and most complex operation in Kademlia: node lookup. This entails locating the $k$ nodes closest to a given node ID. The lookup initiator starts by picking $\alpha = 3$ nodes from its closest non-empty $k$-bucket (remember that the closest $k$-buckets will probably be empty) and then sends parallel, asynchronous \findNode/ RPCs to the $\alpha$ nodes. Following those \findNode/ RPCs, the initiator will become privy to new nodes and can query those. If a round of queries does not return a single node closer to the target node, then the initiator queries nodes that have not already been queried. The lookup ends when it can find nothing closer and when the $k$ closest nodes have all responded.
 
-Node lookup is used in the \store/ RPC for replication. When a key/value pair is stored at a particular target node, it is also stored at the $k$ closest peers of that target node. Replica entries are kept fresh since nodes republish their key/value pairs on the hour, and since entries will expire after 24 hours to limit stale data. Finally, when node $a$ encounters another node $b$ that is closer to some of $a$'s key/value pairs, $a$ replicates them over to $b$.
+Node lookup is used in the \store/ RPC for replication. When a \kv/ pair is stored at a particular target node, it is also stored at the $k$ closest peers of that target node. Replica entries are kept fresh since nodes republish their \kv/ pairs on the hour, and since entries will expire after 24 hours to limit stale data. Finally, when node $a$ encounters another node $b$ that is closer to some of $a$'s \kv/ pairs, $a$ replicates them over to $b$.
 
 \section{Entangled}
-We use a Python implementation of the Kademlia DHT.
+\newcommand{\delete}{}
+\def\delete/{{\sc delete}}
+We use Entangled, a Python implementation of the Kademlia DHT.
+In addition, Entangled also features a \delete/ RPC for deleting \kv/ pairs from the DHT, a fully distributed peer-to-peer tuple space, and keyword-based operations, such as publish, search and remove.
 
 
 

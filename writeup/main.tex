@@ -53,11 +53,11 @@
 \newcommand{\OpenBazaar}{}
 \def\OpenBazaar/{{\sc OpenBazaar}}
 
-\newcommand{\Entangled}{}
-\def\Entangled/{{\sc Entangled}}
-
 \newcommand{\Kademlia}{}
 \def\Kademlia/{{\sc Kademlia}}
+
+\newcommand{\Entangled}{}
+\def\Entangled/{{\sc Entangled}}
 
 \newcommand{\Twisted}{}
 \def\Twisted/{{\sc Twisted}}
@@ -263,9 +263,9 @@ Files within here create the various networking components, including event hand
 \subsection{Issues}
 
 \subsubsection{Understanding the codebase}
-The first major issue we had was understanding a very large codebase with little documentation.
-The \OpenBazaar/ project was evolving rapidly, and from the first version right out of the Hackathon, there were continuing changes being made as we were coming to understand it.
-It was impossible to read all of the existing code, so we first worked on determining the function of the various high-level modules in the codebase, broken up into folders.
+The first major issue we had was understanding a large, growing, poorly documented \OpenBazaar/ codebase.
+Even as we were reading, new commits were being made to the repository on a daily basis.
+Reading every line of code would have been a hassle, so we first determined what each high-level module did, and then delved into the most important folders.
 We avoided in-depth readings of the low-level cryptographic implementations, focusing just on the method headers, and worked towards a summary understanding of the peer-to-peer interactions of the existing system.
 We spent most of our time on the market interactions where we would be implementing our desired functionality.
 

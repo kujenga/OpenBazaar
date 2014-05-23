@@ -13,6 +13,7 @@ from ecdsa import SigningKey,SECP256k1
 import random
 from obelisk import bitcoin
 import base64
+import pickle
 
 # for entangled implementation
 from twisted.internet import defer, reactor
@@ -158,10 +159,11 @@ class Market(object):
         def publish_err(error):
             print("error while publishing page into DHT: %s"%error)
             self._log.info("DHT publish error: %s" % error)
-        # publish local site into the DHT
-        page_data = proto_page(self._transport._myself.get_pubkey(),
-                               self.mypage, self.signature,
-                               self.nickname)
+
+        # publish local site into the DHT (pickle.dumps() makes str from dict)
+        page_data = pickle.dumps(proto_page(self._transport._myself.get_pubkey(),
+											self.mypage, self.signature,
+											self.nickname))
         print type(page_data)
         # creates a sha1 has of the current public key to get it into hashtable format
         h = hashlib.sha1()
@@ -193,7 +195,8 @@ class Market(object):
             if (len(result) > 0):
                 print("retrieved page "+str(result))
                 self._log.info("for key: "+key+" iteratve find returned result: "+str(result))
-                page = result
+				# pickle.loads() goes from str to dict
+                page = pickle.loads(result)
                 print type(result)
                 pubkey_in = page.get('pubkey')
                 page_in = page.get('text')

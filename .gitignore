@@ -28,3 +28,5 @@ entangled-0.1/dist/*
 =======
 *.log
 >>>>>>> upstream/master
+writeup/main.aux
+writeup/main.out

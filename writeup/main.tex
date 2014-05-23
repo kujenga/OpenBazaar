@@ -165,6 +165,16 @@ Think of these lists as a node's contacts or peers, and each element in the list
 For $0 \leq i < 160$, list $i$ stores peers whose distance falls within the interval $[2^i, 2^{i+1})$.
 That is, the $0^{\mathrm{th}}$ list stores peers that are 1 away; the $1^{\mathrm{st}}$ list, peers that are 2 or 3 away; the $2^{\mathrm{nd}}$ list, peers that are 4, 5, 6, or 7 away; and so on.
 
+These lists are known as $k$-buckets.
+The peers inside each $k$-bucket are ordered by how recently they were seen, with the most recent encounters at the tail.
+For small values of $i$, the $k$-buckets are probably going to be empty.
+That is, the $0^{\mathrm{th}}$ $k$-bucket, which stores the peer that is one away, is almost certainly going to be empty; this is because the keyspace is so large that we will rarely see $k_1 \oplus k_2 = 1$.
+In layman terms, nodes are going to be spread out, so the $k$-buckets that can store a wider range of nodes are more likely to be filled.
+
+However, there is a limit to how large a $k$-bucket can get: that limit is determined by a system-wide parameter, $k$. Every time a node receives a request or reply, it updates its $k$-bucket for the sender. If the sender is already in the appropriate $k$-bucket, it moves to the tail of the list. If there are fewer than $k$ entries in the bucket, the sender moves to the tail as well. If the bucket is full, then the recipient node pings the least-recently seen node at the head of the list and waits for a response; if no response comes, the sender node is inserted at the list tail; but if the least-recently seen node responds, then it moves to the list tail and the sender node is discarded.
+
+This least-recently seen eviction policy has two main advantages. First, it is a natural defense against flooding attacks, like DDoS, since the $k$-buckets are capped in size. Second, the preference for old contacts has been empirically shown to have availability benefits: the longer a node has been up, the more likely it is to stay up for another hour.
+
 One of the biggest differences between Kademlia and other DHTs is that the keys are the hashed node IDs instead of hashed filenames or hashed file contents.
 We use a Python implementation of the Kademlia DHT.
 

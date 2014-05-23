@@ -157,13 +157,21 @@ Fourth, Kademlia features unidirectional routing, as opposed to bidirectional ro
 All node lookups and value lookups are guaranteed to converge on the same path, regardless of the requester.
 Thus, caching key/value pairs along a path will reduce latency.
 Unidirectionality is a consequence of using a symmetric distance function, namely \emph{bitwise exclusive or} (XOR).
-That is, the distance function is denoted by $\delta(x,y) = x \oplus y$, and its property of symmetry is denoted by $\delta(x,y) = \delta(y,x)$.
+That is, the distance function is denoted by $\delta(x,y) = x \oplus y$, and its property of symmetry is denoted by $\delta(x,y) = \delta(y,x)$.\footnote{In Kademlia, the distance between two nodes is computed by taking the XOR of their two node IDs.}
 
 \subsubsection{Node State}
 Each Kademlia node stores a list for every bit in the address space, in this 160.
 Think of these lists as a node's contacts or peers, and each element in the list stores a peer's IP, port, and node ID.
 For $0 \leq i < 160$, list $i$ stores peers whose distance falls within the interval $[2^i, 2^{i+1})$.
 That is, the $0^{\mathrm{th}}$ list stores peers that are 1 away; the $1^{\mathrm{st}}$ list, peers that are 2 or 3 away; the $2^{\mathrm{nd}}$ list, peers that are 4, 5, 6, or 7 away; and so on.
+
+Figure~\ref{tree} shows the general structure of the network. Nodes are viewed as leaves in a binary tree. The gray ovals form the peer lists for node 6 (colored in black). The $2^{\mathrm{nd}}$ peer list exclude node 3, which is not in the network.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\textwidth]{images/tree}
+  \caption{\label{tree}Nodes are leaves. $k$-buckets are increasingly large neighborhoods/subtrees.}
+\end{figure}
 
 These lists are known as $k$-buckets.
 The peers inside each $k$-bucket are ordered by how recently they were seen, with the most recent encounters at the tail.

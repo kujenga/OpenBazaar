@@ -44,28 +44,30 @@ def demoMode():
         # Primary Market - No SEED_URI specified
         print '** Creating seed node 1'
         os.spawnlp(os.P_WAIT,'touch','touch',LOGDIR+"/demo_node1.log")
-        demo_nodes.append( os.spawnlp(os.P_NOWAIT, 'python2', 'python2', './node/tornadoloop.py',
+        demo_nodes.append( os.spawnlpe(os.P_NOWAIT, 'python2', 'python2', './node/tornadoloop.py',
                                       demo_storefiles[0], demo_ip_prefix+str(1),
-                                      "--my_node_port="+str(demo_port), "--log_file="+LOGDIR+"/demo_node1.log", "--userid=1"))
-        time.sleep(2)
+                                       "--my_node_port="+str(demo_port), "--log_file="+LOGDIR+"/demo_node1.log", "--userid=1", os.environ))
+        time.sleep(1)
         demo_port += 1
         
         # Demo Peer Market
         for num in range(2,SIZE+1):
             print '\n** Creating node %s' % num
             os.spawnlp(os.P_WAIT,'touch','touch',LOGDIR+"/demo_node%s.log"%num)
-            demo_nodes.append( os.spawnlp(os.P_NOWAIT, 'python2', 'python2', './node/tornadoloop.py',
-                                          demo_storefiles[(num-1)%len(demo_storefiles)], demo_ip_prefix + str(num),
-                                          "--seed_uri=tcp://127.0.0.1:12345", "--my_node_port=" + str(demo_port), "--log_file=" + LOGDIR + "/demo_node%d.log"%num, "--userid=%d"%num))
-            time.sleep(2)
+            demo_nodes.append( os.spawnlpe(os.P_NOWAIT, 'python2', 'python2', './node/tornadoloop.py',
+                                           demo_storefiles[(num-1)%len(demo_storefiles)], demo_ip_prefix + str(num),
+                                           "--seed_uri=tcp://127.0.0.1:12345", "--my_node_port=" + str(demo_port), "--log_file=" + LOGDIR + "/demo_node%d.log"%num, "--userid=%d"%num,
+                                           os.environ))
+            time.sleep(1)
             demo_port += 1
     except KeyboardInterrupt:
         '\ncancelled launch process'
         destroyNetwork(demo_nodes)
         sys.exit(1)
-        
+    
     print '\n\n---------------\nNetwork running\n---------------\n'
     # blocks until interrupt to shutdown nicely
+    
     try:
         while 1:
             time.sleep(1)
@@ -73,13 +75,17 @@ def demoMode():
         pass
     finally:
         destroyNetwork(demo_nodes)
-
+    
 
 # if executed directly, run the setup process
 if __name__ == '__main__':
 
     if len(sys.argv) > 1:
-        MODE = sys.argv[1]
+        # assigns a number to size if the demo and a string to the specified mode
+        try:
+            SIZE = int(sys.argv[1])
+        except:
+            MODE = sys.argv[1]
     elif len(sys.argv) > 2:
         SEED_URI = "tcp://"+sys.argv[2]+":"+str(MY_MARKET_PORT)
 

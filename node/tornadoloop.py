@@ -54,7 +54,9 @@ class MarketApplication(tornado.web.Application):
         # TODO: Move debug settings to configuration location
         settings = dict(debug=True)
         tornado.web.Application.__init__(self, handlers, **settings)
-        twisted.internet.reactor.run()
+        # including this line breaks the p2p system for some reason
+        # twisted.internet.reactor.run()
+                
 
     def get_transport(self):
         return self.transport
@@ -86,7 +88,7 @@ def start_node(store_file, my_market_ip, my_market_port, my_node_port, my_node_f
                         format='%(asctime)s - %(name)s -  \
                                 %(levelname)s - %(message)s',
                         filename=log_file)
-
+    print "creating MarketApplication"
     application = MarketApplication(store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri, user_id)
 
     error = True
@@ -98,6 +100,7 @@ def start_node(store_file, my_market_ip, my_market_port, my_node_port, my_node_f
         except:
             port += 1
 
+    print("Started user app at http://%s:%s" % (my_market_ip, port))
     logging.getLogger().info("Started user app at http://%s:%s" % (my_market_ip, port))
 
     # handle shutdown
@@ -128,7 +131,10 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--userid", default=1)
     args = parser.parse_args()
 
-    print(args)
-    start_node(args.store_file, args.my_market_ip,
-               args.my_market_port, args.my_node_port, args.my_node_file,
-               args.seed_uri, args.log_file, args.userid)
+    print("tornadoloop args:"+str(args))
+    try:        
+        start_node(args.store_file, args.my_market_ip,
+                   args.my_market_port, args.my_node_port, args.my_node_file,
+                   args.seed_uri, args.log_file, args.userid)
+    except KeyboardInterrupt:
+        sys.exit(1)

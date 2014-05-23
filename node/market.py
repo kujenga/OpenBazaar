@@ -162,9 +162,12 @@ class Market(object):
 
         # publish local site into the DHT (pickle.dumps() makes str from dict)
         page_data = pickle.dumps(proto_page(self._transport._myself.get_pubkey(),
-											self.mypage, self.signature,
-											self.nickname))
-        print type(page_data)
+                                            self.mypage, self.signature,
+                                            self.nickname))
+
+        print "pickle.dumps(page_data): %s" % page_data
+        #print "pickle.loads(page_data): %s" % (pickle.loads(page_data))
+
         # creates a sha1 has of the current public key to get it into hashtable format
         h = hashlib.sha1()
         h.update(self._transport._myself.get_pubkey())
@@ -193,11 +196,12 @@ class Market(object):
         def retrieved_page(result):
             # parses in retreived page and stores it locally in self.pages
             if (len(result) > 0):
-                print("retrieved page "+str(result))
-                self._log.info("for key: "+key+" iteratve find returned result: "+str(result))
+
+                self._log.info("for key: " + key + " iteratve find returned result: " + str(result))
 				# pickle.loads() goes from str to dict
-                page = pickle.loads(result)
-                print type(result)
+                page = pickle.loads(result[key])
+                # go through each value and convert unicode to other type
+                print "result[key]: %s" % result[key]
                 pubkey_in = page.get('pubkey')
                 page_in = page.get('text')
                 

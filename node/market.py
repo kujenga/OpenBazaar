@@ -46,7 +46,6 @@ class Market(object):
         self.store_file = store_file
         # assign Entangled Node to global
 	self.node = node
-        self.node.printContacts()
 
         # Connect to database
         MONGODB_URI = 'mongodb://localhost:27017'
@@ -161,6 +160,8 @@ class Market(object):
         h.update(self._transport._myself.get_pubkey())
         key = h.digest()
         
+        print "attempting iterativeStore with key %s" % int(key)
+        self.node.printContacts()
         deferred = self.node.iterativeStore(key, page_data, originalPublisherID = self.node._generateID())
         deferred.addCallbacks(publish_succ, errback = publish_err)
 
@@ -179,9 +180,11 @@ class Market(object):
 
     # Alter these significantly to use the DHT +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     def query_page(self, pubkey):
-        print("querying for page")
-        # remove the next line when possible
+        # this is the old way that the pages were retreived over p2p
         #self._transport.send(query_page(pubkey))
+
+        print("querying for page through entangled with contacts:")
+        self.node.printContacts()
         # creates a sha1 has of the current public key to get it into the format used by the publishData method in load_pagex
         h = hashlib.sha1()
         h.update(pubkey)
@@ -191,8 +194,8 @@ class Market(object):
         def retrieved_page(result):
             # parses in retreived page and stores it locally in self.pages
             if (len(result) > 0):
-                print("retrieved page "+" ".join(result))
-                self._log.info("for key: "+key+" iteratve find returned result: "+" ".join(result))
+                print("retrieved page "+str(result))
+                self._log.info("for key: "+key+" iteratve find returned result: "+str(result))
                 page = result[0]
                 pubkey_in = page.get('pubkey')
                 page_in = page.get('text')

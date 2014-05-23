@@ -99,6 +99,8 @@ def start_node(store_file, my_market_ip, my_market_port, my_node_port, my_node_f
     print "creating MarketApplication"
     application = MarketApplication(store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri, user_id)
 
+    
+
 
     error = True
     port = 8888
@@ -124,7 +126,6 @@ def start_node(store_file, my_market_ip, my_market_port, my_node_port, my_node_f
 
     #IOLoop.instance().start()
     reactor.run()
-
 
 # Run this if executed directly
 if __name__ == "__main__":

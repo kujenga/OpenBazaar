@@ -15,11 +15,11 @@ from obelisk import bitcoin
 import base64
 
 # for entangled implementation
-from twisted.internet import defer
+from twisted.internet import defer, reactor
 import hashlib
 import entangled.node
 from entangled.kademlia.datastore import SQLiteDataStore
-
+import entangled.kademlia.constants
 
 class Market(object):
 
@@ -68,7 +68,11 @@ class Market(object):
         transport.add_callback('negotiate_pubkey', self.on_negotiate_pubkey)
         transport.add_callback('proto_response_pubkey', self.on_response_pubkey)
 
+        # loads the page in from memory
         self.load_page(welcome)
+        # stored the page in the DHT once the reactor has been given time to startup and the entangled node has refreshed
+        delay = 1.0
+        reactor.callLater(delay, self.store_page)
 
 
     def generate_new_secret(self):
@@ -81,11 +85,6 @@ class Market(object):
 
         self._db.settings.update({}, {"$set": {"secret":hexkey, "pubkey":bitcoin.GetPubKey(key._public_key.pubkey, False).encode('hex')}})
 
-
-
-##########################################################################
-# continue implementing the use of the Entangled node from this point
-##########################################################################
 
     # returns a public key for a given nickname
     def lookup(self, msg):
@@ -139,46 +138,44 @@ class Market(object):
         self.mypage = tagline
         self.nickname = nickname
         self.signature = self._transport._myself.sign(tagline)
-        
-
-	# loads your file into the DHT *********************************************************
-        # callback functons for DHT input
-        def publish_succ(result):
-            print("DHT iterativeStore operation completed with result: ~"+" ".join(result)+"~")
-            if (result != None):
-                self._log.info("DHT publish result: " + " ".join(result))
-        def publish_err(error):
-            print("error while publishing page into DHT: %s"%error)
-            self._log.info("DHT publish error: %s" % error)
-        # publish local site into the DHT
-        page_data = proto_page(self._transport._myself.get_pubkey(),
-                                        self.mypage, self.signature,
-                                        self.nickname)
-
-        # creates a sha1 has of the current public key to get it into hashtable format
-        h = hashlib.sha1()
-        h.update(self._transport._myself.get_pubkey())
-        key = h.digest()
-        
-        print "attempting iterativeStore with key %s" % int(key)
-        self.node.printContacts()
-        deferred = self.node.iterativeStore(key, page_data, originalPublisherID = self.node._generateID())
-        deferred.addCallbacks(publish_succ, errback = publish_err)
-
 
         if welcome:
             self._db.settings.update({}, {"$set":{"welcome":"noshow"}})
         else:
             self.welcome = False
 
-
         self._log.info("Tagline signature: " + self.signature.encode("hex"))
+        
 
+    # loads your file into the DHT *********************************************************
+    def store_page(self):
 
+        # callback functons for DHT input
+        def publish_succ(result):
+            print("DHT iterativeStore operation completed with result: ~"+str(result)+"~")
+            if (result != None):
+                self._log.info("DHT publish result: " + str(result))
+        def publish_err(error):
+            print("error while publishing page into DHT: %s"%error)
+            self._log.info("DHT publish error: %s" % error)
+        # publish local site into the DHT
+        page_data = proto_page(self._transport._myself.get_pubkey(),
+                               self.mypage, self.signature,
+                               self.nickname)
+        print type(page_data)
+        # creates a sha1 has of the current public key to get it into hashtable format
+        h = hashlib.sha1()
+        h.update(self._transport._myself.get_pubkey())
+        key = h.digest()
+        
+        print "attempting iterativeStore with contacts:"
+        self.node.printContacts()
+        deferred = self.node.iterativeStore(key, page_data, originalPublisherID = self.node._generateID())
+        deferred.addCallbacks(publish_succ, errback = publish_err)
+        
 
     # PAGE QUERYING
 
-    # Alter these significantly to use the DHT +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     def query_page(self, pubkey):
         # this is the old way that the pages were retreived over p2p
         #self._transport.send(query_page(pubkey))
@@ -196,7 +193,8 @@ class Market(object):
             if (len(result) > 0):
                 print("retrieved page "+str(result))
                 self._log.info("for key: "+key+" iteratve find returned result: "+str(result))
-                page = result[0]
+                page = result
+                print type(result)
                 pubkey_in = page.get('pubkey')
                 page_in = page.get('text')
                 

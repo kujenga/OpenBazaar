@@ -149,8 +149,8 @@ class Market(object):
             if (result != None):
                 self._log.info("DHT publish result: " + " ".join(result))
         def publish_err(error):
-            print("error while publishing page into DHT :(")
-            self._log.info("DHT publish error: " + error)
+            print("error while publishing page into DHT: %s"%error)
+            self._log.info("DHT publish error: %s" % error)
         # publish local site into the DHT
         page_data = proto_page(self._transport._myself.get_pubkey(),
                                         self.mypage, self.signature,
@@ -200,7 +200,7 @@ class Market(object):
                 if pubkey_in and page_in:
                     self.pages[pubkey_in] = page_in
             else:
-                print("failed to retrieve any pages")
+                print("search for key %s failed to retrieve any pages" % key)
                 self._log.info("for key: "+key+" iteratve find returned nothing")
             
         # searches for the value associated with sha1 has of the pubkey for the specified nodex

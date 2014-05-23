@@ -26,40 +26,51 @@ class MainHandler(tornado.web.RequestHandler):
 class MarketApplication(tornado.web.Application):
 
     def __init__(self, store_file, my_market_ip, my_market_port, my_node_port, my_node_file, seed_uri, market_id):
-        import twisted.internet.reactor
-        
+                
         self.transport = CryptoTransportLayer(my_market_ip,
                                               my_market_port,
                                               market_id,
                                               store_file)
         self.transport.join_network(seed_uri)
+
+
         # TODO: should have persistent data storage, or create a database if one doesn't exist
-        dataStore = SQLiteDataStore()
+        data_store = SQLiteDataStore()
         known_nodes = self.known_entangled_nodes(my_node_file,seed_uri,my_node_port)
         # initializes node with specified port and an in-memory SQLite database
-        self.node = entangled.node.EntangledNode(udpPort=my_node_port, dataStore=dataStore)
-        # sjoins the Kademlia DHT network
-        self.node.joinNetwork(known_nodes)
+        self.node = entangled.node.EntangledNode(udpPort=my_node_port, dataStore=data_store)
 
+        # spawns the p2p program in a seperate thread to avoid blocking conflicts between the two
+        twisted_thread = threading.Thread ( target = self.start_twisted , args = (self.node,known_nodes,))
+        twisted_thread.start()
+        # including this line blocks the p2p system from running, need to use seperate thread
+        # twisted.internet.reactor.run()
+        
         self.market = Market(self.transport,self.node,store_file)
-
+        
         handlers = [
             (r"/", MainHandler),
             (r"/main", MainHandler),
             (r"/html/(.*)", tornado.web.StaticFileHandler, {'path': './html'}),
             (r"/ws", WebSocketHandler,
-                dict(transport=self.transport, node=self.market))
+             dict(transport=self.transport, node=self.market))
         ]
 
         # TODO: Move debug settings to configuration location
         settings = dict(debug=True)
         tornado.web.Application.__init__(self, handlers, **settings)
-        # including this line breaks the p2p system for some reason
-        # twisted.internet.reactor.run()
-                
+        
 
     def get_transport(self):
         return self.transport
+
+    def start_twisted(self,node,known_nodes):
+        # joins the Kademlia DHT network
+        node.joinNetwork(known_nodes)
+
+        from twisted.internet import reactor
+        reactor.run(installSignalHandlers=0)
+
 
     # creates list of known node tuples either from node_file or the seed_uri
     def known_entangled_nodes(self,node_file,seed_uri,node_port):

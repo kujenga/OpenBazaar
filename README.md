@@ -12,6 +12,21 @@ We intend to use the Entangled inplementation of the Kademlia DHT design, which 
 
 ==============
 
+## running our fork and looping at processes
+
+After your machine had been properly configured, you can run the program using the `launch.py` script in the top-level of the repository. This python script created a CLI for the user to interact with, functionality is farily simple to add by entending the functionality of the input listener.
+
+To look at the status of the nodes on the machine, open a new terminal window and use one or both of the following commands.
+- `ps aux | grep python`
+ - This command displays all running python processes
+ - used to check if the ndoes are running, or still running after an error and termination of the CLI
+- `netstat -lp`
+ - shows the port and IP address bindings of the local machine
+ - if running in demo mode, you should see three ports in a `LISTEN` state for each process (Underscores represent actual numbers). One will be of the form `127.0.0._:12345` for the market interactions, another will be of the form `[::]:888_` for the browser connection, and the third will be of the form `*:4777_` for the entangled node connections on a local machine.
+ - in demo mode, there will simply be just one set of these three port bindings, and the entangled node will be on port `4000`
+
+==============
+
 ## Project folder purposes
 
 - ecdsa: elliptic curve cryptography resources

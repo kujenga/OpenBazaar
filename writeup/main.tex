@@ -226,15 +226,41 @@ The current implementation is evolving rapidly with contributions from the open-
 \subsection{Additions}
 % describe modifications to market, run, tornadoloop, etc
 
+\newcommand{\Twisted}{}
+\def\Twisted/{{\sc Twisted}}
+\newcommand{\Tornado}{}
+\def\Tornado/{{\sc Tornado}}
+\newcommand{\Entangled}{}
+\def\Entangled/{{\sc Entangled}}
+
 \subsection{Issues}
-Once we had gotten over the hurdle of understanding how the various components of the existing codebase functioned, the codebase implementation of handling the API calls was fairly straightforward
 
+\subsubsection{Understanding the codebase}
+The first major issue we had was understanding a very large codebase with little documentation. The OpenBazaar project was eveling rapidly, and from the first version right out of the Hackathon that we had began to understand, there were continuing changed being made as we were coming to understand it. It was impossible to read all of the existing code, so we first worked on determining the function of the various high-level modules in the codebase, broken up into folders. We avoided in-depth readings of the low-level cryptographic implementations, focusing just on the method headers, and worked towards a summary understanding of the peer-to-peer interactions of the existing system. Where we spent most of out time was on the market interactions where we would be implementing our desired functionality.
 
+In this manner, we were able to make sense of a codebase tens of thousands of lines long to implement our own functionality within it. The methodology we found useful was fining a starting point, in our case the launch point for the application, and then following the method calls and initializations to understand the connections between the various pieces of the program.
+
+\subsubsection{Conflicting Systems}
+Once we had gotten over the hurdle of understanding how the various components of the existing codebase functioned, figuring out how to utilize the \Entangled/ APIs to create the functionality we wanted was not too difficult. The function calls created straightforward ways to publish and remove data from the network, and retreive it as desired. However, out of the box the \Entangled/ implementation used a different networking engine than the rest of the OpenBazaar project, which created frustrating conflicts in getting that network up and running.
+
+The root of our main problem was that two network event listening loops cannot both be running in the main thread. The OpenBazaar project was set up to be running a loop from the \Tornado/ library, which handled all its incoming requests and outgoing messages as it should. The \Entangled/ nodes relied on an instance of a module called a {{\sc reactor}} from the \Twisted/ python library in order to handle its network interactions.
+
+There is little information in the \Entangled/ documentation about what components of the \Twisted/ library are required to be running for the \Entangled/ nodes to begin functioning. In the example programs provided with the \Entangled/ source code, the only visible use of the \Twisted/ library is unrelated to the DHT, and involves the direct connections in the application-specific function of filesharing. Initially, I had thought that the reactor was unnecessary for just running the DHT, which lead me to eliminate all other possible sources of issues until I was lead back to the same line I had commented out earlier as the only deviation in my implementation. In hindsight, it makes sense that the nodes need an event listener, and overlooking that fact was due to both my relative inexperience in python and a lack of specificity in the \Entangled/ documentation.
+
+However, that merely brought me back to the same issue that had lead to the removal of that line of code in the first place. My initial plan was to run one of the event loops in the seperate thread. However, because of the way signals from the operating system are handled in python, both of the loops demand to be run in the main thread, and produce a variety of error messages to this effect if you try to implement them in a manner otherwise. Additionally, due to the interconnected nature of the \Entangled/ node and the market node, running one in a seperate process would just have made a bad situation worse, with extra layers of complexity necessitated for inter-process communication.
+
+\subsubsection{Conflict Resolution}
+As somewhat of a logjam, I dove into the sourcecode for the \Tornado/ and \Twisted/ libraries, looking for any commonality in the event loops that could be exploited. As it turns out, we were not the first to have this problem, and buried within the configuration options for \Tornado/ were two options for bridges between the \Twisted/ reactor event loop, and the \Tornado/ IOloop. One of these replaced the builtin \Tornado/ IOloop with the twisted reactor and reimplemented the \Tornado/ IOloop API onto of the resulting twisted reactor. This allowed for the \Entangled/ nodes to interact with the underlying reactor, and for the rest of the existing application to interface with the \Tornado/ API built ontop of it.
+
+Happily, this solution worked, allowing the entangled nodes to connect to one another and effectively combining the two seperate nodes in the previous conception of the system into a single one, running on the same event loop in the same thread.
+
+After this solution was found, a few details remained to be ironed out 
 
 \section{Evaluation}
 
 
-
+\section{Outside Work}
+Interestingly, while we have been implementing our fork of this project, the person who has taken over primary development of project on github has begun some limited work on implementing a version of the Kademlia DHT. The branch on github is fairly limited, currently containing an implementation of the Kademlia Datastore and a few placeholders for where future code may go, but the similarity in our ideas is interesting.
 
 \section{Conclusion}
 

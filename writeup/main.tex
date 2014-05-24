@@ -129,7 +129,14 @@ Replication also has two downsides.
 First, we must ensure that when Bob requests data for Alice's market, he receives the most up-to-date version of her market. We address the challenge of synchronization later.
 Second, replication disincentivizes users from maintaining their servers. That is, what is to stop Bob from powering down or disconnecting his machine with great frequency if Alice is hosting his marketplace for him? We address this problem by giving users with greater hosting uptime in the network certain perks and community incentives, such as paying smaller commissions to the third party arbiter during transactions, and positive or negative indicators in the reviews section attached to each user.
 
-
+The rest of this paper is structured as follows.
+Section~\ref{sec:high_level} describes how the \OpenBazaar/ ecosystem works at a high level between sellers, buyers and arbiters.
+Section~\ref{sec:low_level} provides an overview on DHTs and \Kademlia/, our DHT of choice.
+Section~\ref{sec:entangled} briefly describes \Entangled/, the actual Python implementation of \Kademlia/ we use.
+Section~\ref{sec:design_challenges} explains the challenges faced when trying to balance replication and synchronization, and how both might be achieved with \Entangled/.
+Section~\ref{sec:implementation} gives an account of the struggles experienced during implementation, all the trials and tribulations of making several gargantuan libraries work in harmony.
+Section~\ref{sec:evaluation} reports on how we might assess how effective \Entangled/'s replication strategy is on availability, and on how we might evaluate its level of synchronization.
+Section~\ref{sec:conclusion} concludes.
 
 
 
@@ -141,6 +148,7 @@ Second, replication disincentivizes users from maintaining their servers. That i
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{How it works}
+\label{sec:high_level}
 A user downloads the market software, which runs a daemon in the background and allows a user to become a node in a distributed network with a P2P library known as ZeroMQ, or \ZMQ/. 
 
 For Alice to become a seller, she can edit an HTML file designated as her seller page.
@@ -173,6 +181,7 @@ Sellers with better ratings will naturally attract more buyers.
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Architectural Overview}
+\label{sec:low_level}
 The \OpenBazaar/ repository is incipient but constantly being updated.
 Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible.
 Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database.
@@ -320,6 +329,7 @@ In short, the marketplace is kept fresh and up to date.
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Entangled API}
+\label{sec:entangled}
 We use \Entangled/, a DHT written in Python that builds off of \Kademlia/.
 
 The main object we use is {\sc EntangledNode}, which is basically a \Kademlia/ node but with a few more non-standard RPCs, such as \delete/.
@@ -339,6 +349,7 @@ Each \Kademlia/ node stores a routing table, which includes methods to add, remo
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Design Challenges}
+\label{sec:design_challenges}
 
 % % % % % % % % % % %
 % % % % % % % % % % %
@@ -389,6 +400,7 @@ Of course, this is not without its pitfalls -- clock skew and clock drift -- but
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Implementation}
+\label{sec:implementation}
 Our implementation of this system began with reading through the source code and limited documentation of the various pieces of what was to be in our final system and understanding how each of the pieces worked and interacted.
 Running the actual server for the nodes is an implementation called \Tornado/, that handles the creation of a webserver and the majority of the transport layer.
 The \OpenBazaar/ P2P interactions run on a network library called ZeroMQ (\ZMQ/) that handles most of the peer-to-peer setup and network maintenance between the nodes in the system.
@@ -474,7 +486,11 @@ After this solution was found, a few details remained to be ironed out with out 
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Evaluation}
+\label{sec:evaluation}
 
+% % % % % %
+% % % % % %
+% % % % % %
 \subsection{Evaluating availability}
 As mentioned in Subsection~\ref{subsec:design_challenges_replication}, there must some optimal amount of nodes to which the system can replicate a \kv/ pair and guarantee the pair's availability nearly all the time.
 To test replication's effect on availability, we could launch a network with $n$ nodes.
@@ -482,23 +498,15 @@ Then, after some time, we could crash $\gamma < n$ nodes and perform a \findValu
 If the \findValue/ request does not return the correct value, then this ``availability test'' fails.
 To fairly assess the system, we would run a sufficient number of ``availability tests.''
 
+% % % % % %
+% % % % % %
+% % % % % %
 \subsection{Evaluating synchronization}
 
 
 
 
 
-
-
-% % % % % % % % % % % % % % % % % % % % % % % %
-% % % % % % % % % % % % % % % % % % % % % % % %
-% % % % % % % % % % % % % % % % % % % % % % % %
-% % % % % % % % % % % % % % % % % % % % % % % %
-% % % % % % % % % % % % % % % % % % % % % % % %
-% % % % % % % % % % % % % % % % % % % % % % % %
-\section{Outside Work}
-Interestingly, while we have been implementing our fork of this project, the person who has taken over primary development of project on GitHub has begun some limited work on implementing a version of the \Kademlia/ DHT.
-The branch on GitHub is fairly limited, currently containing an implementation of the \Kademlia/ Datastore and a few placeholders for where future code may go, but the similarity in our ideas is interesting.
 
 
 
@@ -512,6 +520,19 @@ The branch on GitHub is fairly limited, currently containing an implementation o
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Conclusion}
+\label{sec:conclusion}
+
+% % % % % %
+% % % % % %
+% % % % % %
+\subsection{Outside Work}
+Interestingly, while we have been implementing our fork of this project, the person who has taken over primary development of project on GitHub has begun some limited work on implementing a version of the \Kademlia/ DHT.
+The branch on GitHub is fairly limited, currently containing an implementation of the \Kademlia/ Datastore and a few placeholders for where future code may go, but the similarity in our ideas is interesting.
+
+% % % % % %
+% % % % % %
+% % % % % %
+\subsection{Lessons learned}
 Over the course of this work, we learned several lessons.
 First, working with large codebases is suprisingly approachable after a steep initial learning curve.
 Second, using libraries can be powerful but treacherous, as we saw with our conflict between \Entangled/ and \Tornado/.

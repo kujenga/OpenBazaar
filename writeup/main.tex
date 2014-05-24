@@ -49,6 +49,8 @@
 
 \doublespacing
 
+\newcommand{\kbucket}{}
+\def\kbucket/{{$k$-bucket}}
 
 \newcommand{\OpenBazaar}{}
 \def\OpenBazaar/{{\sc OpenBazaar}}
@@ -253,23 +255,23 @@ The $2^{\mathrm{nd}}$ peer list exclude node 3, which is not in the network.
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{images/tree}
-  \caption{\label{tree}Nodes are leaves. $k$-buckets are increasingly large neighborhoods/subtrees.}
+  \caption{\label{tree}Nodes are leaves. \kbucket/s are increasingly large neighborhoods/subtrees.}
 \end{figure}
 
-These lists are known as $k$-buckets.
-The peers inside each $k$-bucket are ordered by how recently they were seen, with the most recent encounters at the tail.
-For small values of $i$, the $k$-buckets are probably going to be empty.
-That is, the $0^{\mathrm{th}}$ $k$-bucket, which stores the peer that is one away, is almost certainly going to be empty; this is because the keyspace is so large that we will rarely see $k_1 \oplus k_2 = 1$.
-In layman terms, nodes are going to be spread out, so the $k$-buckets that can store a wider range of nodes are more likely to be filled.
+These lists are known as \kbucket/s.
+The peers inside each \kbucket/ are ordered by how recently they were seen, with the most recent encounters at the tail.
+For small values of $i$, the \kbucket/s are probably going to be empty.
+That is, the $0^{\mathrm{th}}$ \kbucket/, which stores the peer that is one away, is almost certainly going to be empty; this is because the keyspace is so large that we will rarely see $k_1 \oplus k_2 = 1$.
+In layman terms, nodes are going to be spread out, so the \kbucket/s that can store a wider range of nodes are more likely to be filled.
 
-However, there is a limit to how large a $k$-bucket can get: that limit is determined by a system-wide parameter, $k$.
-Every time a node receives a request or reply, it updates its $k$-bucket for the sender.
-If the sender is already in the appropriate $k$-bucket, it moves to the tail of the list.
+However, there is a limit to how large a \kbucket/ can get: that limit is determined by a system-wide parameter, $k$.
+Every time a node receives a request or reply, it updates its \kbucket/ for the sender.
+If the sender is already in the appropriate \kbucket/, it moves to the tail of the list.
 If there are fewer than $k$ entries in the bucket, the sender moves to the tail as well.
 If the bucket is full, then the recipient node pings the least-recently seen node at the head of the list and waits for a response; if no response comes, the sender node is inserted at the list tail; but if the least-recently seen node responds, then it moves to the list tail and the sender node is discarded.
 
 This least-recently seen eviction policy has two main advantages.
-First, it is a natural defense against flooding attacks, like DDoS, since the $k$-buckets are capped in size.
+First, it is a natural defense against flooding attacks, like DDoS, since the \kbucket/s are capped in size.
 Second, the preference for old contacts has been empirically shown to have availability benefits: the longer a node has been up, the more likely it is to stay up for another hour.
 
 % % % % % %
@@ -279,7 +281,7 @@ Second, the preference for old contacts has been empirically shown to have avail
 
 The \Kademlia/ protocol is comprised of four main RPC calls: \ping/, \store/, \findNode/, and \findValue/.
 
-The \ping/ RPC checks to see if a node is online and, as previously mentioned, is used when a $k$-bucket is full and a node wants the status of the least-recently seen peer in that bucket.
+The \ping/ RPC checks to see if a node is online and, as previously mentioned, is used when a \kbucket/ is full and a node wants the status of the least-recently seen peer in that bucket.
 
 \store/ tells a node to store a \kv/ pair.
 
@@ -292,7 +294,7 @@ For instance, node lookup is used in the \store/ RPC for replication:
 when a \kv/ pair is stored at a particular target node, it is also stored at the $k$ closest peers of that target node.
 
 Node lookup works in the following way:
-The lookup initiator starts by picking $\alpha = 3$ nodes from its closest non-empty $k$-bucket (remember that the closest $k$-buckets will probably be empty) and then sends parallel, asynchronous \findNode/ RPCs to the $\alpha$ nodes.
+The lookup initiator starts by picking $\alpha = 3$ nodes from its closest non-empty \kbucket/ (remember that the closest \kbucket/s will probably be empty) and then sends parallel, asynchronous \findNode/ RPCs to the $\alpha$ nodes.
 Following those \findNode/ RPCs, the initiator will become privy to new nodes and can query those.
 If a round of queries does not return a single node closer to the target node, then the initiator queries nodes that have not already been queried.
 The lookup ends when it can find nothing closer and when the $k$ closest nodes have all responded.
@@ -320,7 +322,7 @@ We use \Entangled/, a DHT written in Python that builds off of \Kademlia/.
 The main object we use is {\sc EntangledNode}, which is basically a \Kademlia/ node but with a few more non-standard RPCs, such as \delete/.
 
 \Kademlia/ nodes feature the four RPCs -- \ping/, \store/, \findValue/, and \findNode/ -- as well as methods to join the network and to republish and expire data.
-Each \Kademlia/ node stores a routing table, which includes methods to add, remove, and find node contacts. Additionally, the routing table has a method to find all the $k$-buckets that need refreshing and a method to update the ``last accessed'' timestamp of the $k$-bucket that covers the range containing a specified key argument.
+Each \Kademlia/ node stores a routing table, which includes methods to add, remove, and find node contacts. Additionally, the routing table has a method to find all the \kbucket/s that need refreshing and a method to update the ``last accessed'' timestamp of the \kbucket/ that covers the range containing a specified key argument.
 
 
 
@@ -339,6 +341,12 @@ Each \Kademlia/ node stores a routing table, which includes methods to add, remo
 % % % % % % % % % % %
 % % % % % % % % % % %
 \subsection{Replication}
+How much replication is enough data?
+Suppose there are 100 users in the \OpenBazaar/ network.
+There must be some $\omega < 100$ for which if we replicate Alice's data onto $\omega$ other nodes, we can ensure with sufficiently high probability that Alice's marketplace will be ``virtually'' always be available.
+
+Optimal replication strategies have been explored in \cite{cohen}.
+
 
 Ensuring that there is adequate replication of site data between the nodes in the network is crucial to maintaining the sites as persistent state.
 It would be unacceptable to have a system that does not preclude the possibility of your site dissapearing with a few node failures.
@@ -489,5 +497,13 @@ Third, a DHT with a good API can provide very useful functionality in a peer-to-
 Fourth, our efforts have been validated by similar work in the open-source project.
 Fifth, we are super hackers, even more so now than before.
 Lastly, a huge thanks to Jeannie -- you're the best.
+
+\begin{thebibliography}{9}
+\bibitem{cohen}
+  Edith Cohen, and Scott Shenker,
+  \emph{Replication strategies in unstructured peer-to-peer networks}.
+  New York, NY,
+  2002.
+\end{thebibliography}
 
 \end{document}

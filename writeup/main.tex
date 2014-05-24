@@ -447,33 +447,41 @@ The methodology we found useful was finding a starting point, in our case the la
 % % % % % %
 % % % % % %
 \subsubsection{Conflicting Systems}
-Once we had gotten over the hurdle of understanding how the various components of the existing codebase functioned, figuring out how to utilize the \Entangled/ APIs to create the desired functionality was not too difficult.
-The function calls created straightforward ways to publish and remove data from the network, and retrieve it as desired.
-However, out of the box the \Entangled/ implementation used a different networking engine than the rest of the \OpenBazaar/ project, which created frustrating conflicts in getting that network up and running.
+Once we had gotten over the hurdle of understanding the functions of various components of the existing codebase, it was not too difficult to figure out how to utilize the \Entangled/ APIs to create the desired functionality.
+The function calls provide straightforward ways to publish, remove, and retrieve data from the network.
+However, out of the box, the \Entangled/ implementation used a different networking engine than the rest of the \OpenBazaar/ project.
+Thus, we were left with a chaotic snafu created by two clashing Python networking libraries.
 
-The root of our main problem was that two network event listening loops cannot both be running in the main thread.
-The \OpenBazaar/ project was set up to be running a loop from the \Tornado/ library, which handled all its incoming requests and outgoing messages as it should.
-The \Entangled/ nodes relied on an instance of a module called a \reactor/ from the \Twisted/ python library in order to handle its network interactions.
+The root of our main problem was that two network event listening loops were trying to run on the same main thread: this is not possible.
+On the one hand, \OpenBazaar/ was running a loop from the \Tornado/ library, which handled all its incoming requests and outgoing messages.
+On the other hand, \Entangled/ nodes handled their network interactions with an object called \reactor/ from the \Twisted/ Python module.
 
-There is little information in the \Entangled/ documentation about what components of the \Twisted/ library are required to be running for the \Entangled/ nodes to begin functioning.
-In the example programs provided with the \Entangled/ source code, the only visible use of the \Twisted/ library is unrelated to the DHT, and involves the direct connections in the application-specific function of filesharing.
-Initially, I had thought that the \reactor/ was unnecessary for just running the DHT, which lead me to eliminate all other possible sources of issues until I was lead back to the same line I had commented out earlier as the only deviation in my implementation.
-In hindsight, it makes sense that the nodes need an event listener, and overlooking that fact was due to both my relative inexperience in python and a lack of specificity in the \Entangled/ documentation.
+\Entangled/ does not provide documentation on which \Twisted/ components are required for an \Entangled/ node to function.
+In the \Entangled/ library's example programs, the only visible use of the \Twisted/ library is unrelated to the DHT, and involves the direct connections in the application-specific function of file sharing.
 
-However, that merely brought me back to the same issue that had lead to the removal of that line of code in the first place.
+For this reason, we initially assumed the \reactor/ was unnecessary for just running the DHT.
+% which led me to eliminate all other possible sources of issues until I was led back to the same line I had commented out earlier as the only deviation in my implementation. 
+% TODO what line? reactor.run()? vs IOLoop.instance().start()
+In hindsight, it makes sense that the nodes need an event listener, and overlooking that fact was due to both my relative inexperience in Python and a lack of specificity in the \Entangled/ documentation.
+
+However, that merely brought me back to the same issue that had led to the removal of that line of code in the first place.
 My initial plan was to run one of the event loops in the seperate thread.
-However, because of the way signals from the operating system are handled in python, both of the loops demand to be run in the main thread, and produce a variety of error messages to this effect if you try to implement them in a manner otherwise.
+However, because of the way signals from the operating system are handled in Python, both of the loops demand to be run in the main thread, and produce a variety of error messages to this effect if you try to implement them in a manner otherwise.
 Additionally, due to the interconnected nature of the \Entangled/ node and the market node, running one in a seperate process would just have made a bad situation worse, with extra layers of complexity necessitated for inter-process communication.
 
 % % % % % %
 % % % % % %
 % % % % % %
 \subsubsection{Conflict Resolution}
-As somewhat of a logjam, I dove into the sourcecode for the \Tornado/ and \Twisted/ libraries, looking for any commonality in the event loops that could be exploited. As it turns out, we were not the first to have this problem, and buried within the configuration options for \Tornado/ were two options for bridges between the \Twisted/ \reactor/ event loop, and the \Tornado/ IOloop. One of these replaced the builtin \Tornado/ IOloop with the twisted \reactor/ and reimplemented the \Tornado/ IOloop API onto of the resulting \Twisted/ \reactor/. This allowed for the \Entangled/ nodes to interact with the underlying \reactor/, and for the rest of the existing application to interface with the \Tornado/ API built ontop of it.
+After somewhat of a logjam, we dove into the sourcecode for the \Tornado/ and \Twisted/ libraries, looking for any commonality in the event loops that could be exploited.
+As it turns out, we were not the first to have this problem, and buried within the configuration options for \Tornado/ were two options for bridges between the \Twisted/ \reactor/ \emph{event loop} and the \Tornado/ \emph{IOloop}.
+One of these replaced the built-in \Tornado/ IOloop with the \Twisted/ \reactor/ and re-implemented the \Tornado/ IOloop API onto the resulting \Twisted/ \reactor/.
+This allowed for the \Entangled/ nodes to interact with the underlying \reactor/, and for the rest of the existing application to interface with the \Tornado/ API built on top of it.
 
-Happily, this solution worked, allowing the \Entangled/ nodes to connect to one another and effectively combining the two seperate nodes in the previous conception of the system into a single one, running on the same event loop in the same thread.
+It was a relief to see this solution work, allowing the \Entangled/ nodes to connect to one another and effectively combining the two seperate nodes in the previous conception of the system into a single one, running on the same event loop in the same thread.
 
-After this solution was found, a few details remained to be ironed out with out untested implementation of the \Entangled/ node interactions through API calls. \Entangled/ encodes the data passed into the DHT...
+After this solution was found, a few details remained to be ironed out with out untested implementation of the \Entangled/ node interactions through API calls.
+\Entangled/ encodes the data passed into the DHT... %TODO
 
 
 

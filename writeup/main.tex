@@ -344,6 +344,8 @@ Each \Kademlia/ node stores a routing table, which includes methods to add, remo
 % % % % % % % % % % %
 % % % % % % % % % % %
 \subsection{Replication}
+\label{subsec:design_challenges_replication}
+
 How much replication is enough data?
 Suppose there are 100 users in the \OpenBazaar/ network.
 There must be some $\omega < 100$ for which if we replicate Alice's data onto $\omega$ other nodes, we can ensure with sufficiently high probability that Alice's marketplace will be available ``virtually'' all the time.
@@ -361,7 +363,7 @@ As previously stated, nodes republish \kv/ pairs each hour, entries expire after
 The \Entangled/ implementation of these features is less clear, however.
 It can be gleaned from \Entangled/'s example program that some sort of replication mechanism is at play, as seen in Figure~\ref{entangled_replication}.
 
-The {\sc iterativeStore} method
+The {\sc iterativeStore} method %TODO find replication code in entangled.kademlia.node
 
 % % % % % % % % % % %
 % % % % % % % % % % %
@@ -391,7 +393,7 @@ Our implementation of this system began with reading through the source code and
 Running the actual server for the nodes is an implementation called \Tornado/, that handles the creation of a webserver and the majority of the transport layer.
 The \OpenBazaar/ P2P interactions run on a network library called ZeroMQ (\ZMQ/) that handles most of the peer-to-peer setup and network maintenance between the nodes in the system.
 The system is designed fairly sensibly, with the various cryptographic components separated out into seperate modules from the core market interactions.
-The website itself is accessed through a browser, typically at {{\sc localhost:8888}}, and is a fairly straightforward HTML and javascript site that allows for updates to your own market and provides a GUI for interaction with other sites in the network.
+The website itself is accessed through a browser, typically at {\sc localhost:8888}, and is a fairly straightforward HTML and javascript site that allows for updates to your own market and provides a GUI for interaction with other sites in the network.
 
 % % % % % % % % % % %
 % % % % % % % % % % %
@@ -472,9 +474,16 @@ After this solution was found, a few details remained to be ironed out with out 
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Evaluation}
-Using evaluation tools in launch.py
 
-pretty graphs...
+\subsection{Evaluating availability}
+As mentioned in Subsection~\ref{subsec:design_challenges_replication}, there must some optimal amount of nodes to which the system can replicate a \kv/ pair and guarantee the pair's availability nearly all the time.
+To test replication's effect on availability, we could launch a network with $n$ nodes.
+Then, after some time, we could crash $\gamma < n$ nodes and perform a \findValue/$(key)$.
+If the \findValue/ request does not return the correct value, then this ``availability test'' fails.
+To fairly assess the system, we would run a sufficient number of ``availability tests.''
+
+\subsection{Evaluating synchronization}
+
 
 
 

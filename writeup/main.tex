@@ -361,13 +361,19 @@ As previously stated, nodes republish \kv/ pairs each hour, entries expire after
 The \Entangled/ implementation of these features is less clear, however.
 It can be gleaned from \Entangled/'s example program that some sort of replication mechanism is at play, as seen in Figure~\ref{entangled_replication}.
 
+The {\sc iterativeStore} method
 
 % % % % % % % % % % %
 % % % % % % % % % % %
 % % % % % % % % % % %
 \subsection{Synchronization}
+There is a natural tradeoff between replication and synchronization.
+The more replicas a system has, the more effort it must expend in keeping those replicas up-to-date.
 
-Another issue is 
+Fortunately, the \Entangled/ datastore objects have several methods that are conducive to data consistency: they know when a \kv/ pair was last published and originally published, as well as the node ID of the original publisher.
+Having access to when an entry was last published is critical to synchronization, as it is now possible to implement a ``take the most recent'' scheme.
+Of course, this is not without its pitfalls -- clock skew and clock drift -- but their circumvention is beyond the scope of this paper.
+
 
 
 
@@ -506,6 +512,12 @@ Fifth, we are super hackers, even more so now than before.
 Lastly, a huge thanks to Jeannie -- you're the best.
 
 \begin{thebibliography}{9}
+
+\bibitem{kademlia}
+  Petar Maymounkov, and David Mazi\`{e}res,
+  \emph{Kademlia: A Peer-to-peer Information System Based on the XOR Metric},
+  2002.
+
 \bibitem{cohen}
   Edith Cohen, and Scott Shenker,
   \emph{Replication strategies in unstructured peer-to-peer networks}.

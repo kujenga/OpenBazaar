@@ -208,6 +208,7 @@ This form of consistent hashing ensures that when a node is added or removed fro
 When a node joins the system, it takes responsibility for some of its neighbor's keys.
 When a node crashes or leaves the system, the keys mapping to the data it held must be allocated to new nodes.
 Moreover, the more nodes are in a system, the fewer keys have to be remapped on every node entry or exit.
+In general, consistent hashing makes the DHT more tolerant to \emph{node churn}.
 This is yet another advantage a DHT holds over a traditional hash table, which remaps its entire keyspace when a bucket is added or removed.
 
 % % % % % % % % % % %
@@ -247,10 +248,12 @@ Think of these lists as a node's contacts or peers, and each element in the list
 For $0 \leq i < 160$, list $i$ stores peers whose distance falls within the interval $[2^i, 2^{i+1})$.
 That is, the $0^{\mathrm{th}}$ list stores peers that are 1 away; the $1^{\mathrm{st}}$ list, peers that are 2 or 3 away; the $2^{\mathrm{nd}}$ list, peers that are 4, 5, 6, or 7 away; and so on.
 
+Another characteristic of these lists is that all the nodes in the $i^{\mathrm{th}}$ list share the same $159 - i$ most significant bits of their node IDs. For instance, if node $n_1$ is one unit away from node $n_2$ -- denoted by $n_1 \oplus n_2 = 1$ -- then the identifiers of $n_1$ and $n_2$ share all but the least significant bit, by definition of XOR.
+
 Figure~\ref{tree} shows the general structure of the network.
 Nodes are viewed as leaves in a binary tree.
 The gray ovals form the peer lists for node 6 (colored in black).
-The $2^{\mathrm{nd}}$ peer list exclude node 3, which is not in the network.
+The $2^{\mathrm{nd}}$ peer list excludes node 3, which is not in the network.
 
 \begin{figure}[h!]
   \centering
@@ -343,17 +346,21 @@ Each \Kademlia/ node stores a routing table, which includes methods to add, remo
 \subsection{Replication}
 How much replication is enough data?
 Suppose there are 100 users in the \OpenBazaar/ network.
-There must be some $\omega < 100$ for which if we replicate Alice's data onto $\omega$ other nodes, we can ensure with sufficiently high probability that Alice's marketplace will be ``virtually'' always be available.
+There must be some $\omega < 100$ for which if we replicate Alice's data onto $\omega$ other nodes, we can ensure with sufficiently high probability that Alice's marketplace will be available ``virtually'' all the time.
 
 Optimal replication strategies have been explored in \cite{cohen}.
-
-
-Ensuring that there is adequate replication of site data between the nodes in the network is crucial to maintaining the sites as persistent state.
-It would be unacceptable to have a system that does not preclude the possibility of your site dissapearing with a few node failures.
 Fortunately, \Kademlia/ itself is designed to handle this problem.
-It uses %TODO
-these mechanisms to ensure that, once published, data is maintained in the network in all but the most extreme cases.
-The \Entangled/ implementation of \Kademlia/ mirrors this functionality, as is demonstrated provided by the example programs included with that project.
+As previously stated, nodes republish \kv/ pairs each hour, entries expire after 24 hours, and data is replicated onto any nodes encountered that are closer to the data's key.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.45\textwidth]{images/entangled_replication}
+  \caption{\label{entangled_replication}Multiple nodes respond to a \findValue/ query.}
+\end{figure}
+
+The \Entangled/ implementation of these features is less clear, however.
+It can be gleaned from \Entangled/'s example program that some sort of replication mechanism is at play, as seen in Figure~\ref{entangled_replication}.
+
 
 % % % % % % % % % % %
 % % % % % % % % % % %

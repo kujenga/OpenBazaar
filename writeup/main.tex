@@ -374,7 +374,8 @@ As previously stated, nodes republish \kv/ pairs each hour, entries expire after
 The \Entangled/ implementation of these features is less clear, however.
 It can be gleaned from \Entangled/'s example program that some sort of replication mechanism is at play, as seen in Figure~\ref{entangled_replication}.
 
-The {\sc iterativeStore} method %TODO find replication code in entangled.kademlia.node
+%TODO find replication code in entangled.kademlia.node
+Indeed, just as the \Kademlia/ paper describes, the \Entangled/ node implementation periodically performs \kbucket/ refreshes, which entails republishing and replicating the data as necessary.
 
 % % % % % % % % % % %
 % % % % % % % % % % %

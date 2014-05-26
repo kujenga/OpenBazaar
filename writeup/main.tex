@@ -1,4 +1,4 @@
-\documentclass[12pt,twocolumn]{article}
+\documentclass[11pt,twocolumn]{article}
 
 \usepackage{usenix}
 \usepackage[utf8]{inputenc}
@@ -28,7 +28,7 @@
 }
 
 %\title{CSCI 339 OpenBazaar}
-\title{\bf \sc OpenBazaar: \\ an online peer-to-peer market}
+\title{\bf \sc \href{https://github.com/OpenBazaar/OpenBazaar}{OpenBazaar}: \\ an online peer-to-peer market}
 
 \author{
     {\rm Kevin Chen '15} \\
@@ -49,6 +49,8 @@
 
 \doublespacing
 
+\newcommand{\kbucket}{}
+\def\kbucket/{{$k$-bucket}}
 
 \newcommand{\OpenBazaar}{}
 \def\OpenBazaar/{{\sc OpenBazaar}}
@@ -89,6 +91,11 @@
 \newcommand{\delete}{}
 \def\delete/{{\sc delete}}
 
+
+
+
+
+
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
@@ -96,25 +103,52 @@
 % % % % % % % % % % % % % % % % % % % % % % % %
 % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Introduction}
-In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server. They were able to 
+In October 2013, the FBI was able to shut down the Silk Road, an online black market, with the seizure of a single server.
 To circumvent the problem of a single point of failure, the winners of a hackathon recently unveiled a proof-of-concept for a peer-to-peer version of the Silk Road.
 
-Known as \OpenBazaar/ (formerly the DarkMarket), this service incorporates many of the same user experience paradigms as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour. Each piece of the system is covered with layers of encryption, based on the bitcoin protocols and elliptic curve cryptography, to ensure that all communications are secure, all transactions are properly mediated, and all identities are correctly verified.
+Known as \OpenBazaar/ (formerly the DarkMarket), this service incorporates many of the same user experience paradigms as its predecessor: private communication between buyers and sellers, HTML pages to view sellers' wares, a reputation system for ratings and reviews, and an arbiter-escrow feature that ensures a ``fair'' outcome when deals go sour.
+Each piece of the system is covered with layers of encryption, based on the bitcoin protocols and elliptic curve cryptography, to ensure that all communications are secure, all transactions are properly mediated, and all identities are correctly verified.
 Still nascent, \OpenBazaar/ has yet to implement several features that would enable the service to enter production mode and be delivered to users.
 
-As the current system currently stands, in order for a seller to maintain a page, they basically need to maintain an active server with a fixed IP address that other users of the network can connect to in order to view their product offerings and initiate transactions. This is less than ideal for a number of reasons. What has lead to the sucess of other online marketplace systems such as eBay, Craigslist, and even the silk road, was or is the ease with which users can post post items for sale and oder items from other sellers. The current system has a large amount of setup due to the direct peer-to-peer nature of the system. We wanted to emulate the convenience and simplicity of an environment hosted on a central server within the peer to peer network. We worked on scheiving this by replicating user sites across the network using a distributed hash table with data replication to consistently determine their location.
+As the current system currently stands, in order for a seller to maintain a page, they basically need to maintain an active server with a fixed IP address that other users of the network can connect to in order to view their product offerings and initiate transactions.
+This is less than ideal for a number of reasons.
 
-In order for this system to work, the data for a seller's marketplace and ratings should be replicated across several nodes, the data must maintain its integrity and be mutable only by the person who published it, and it must be able to be accessed quickly by the users of the system.
+What has led to the sucess of other online marketplace systems -- such as eBay, Craigslist, and even the Silk Road -- is the ease with which users can post items for sale and order items from other sellers.
+The current system has a large amount of setup due to the direct peer-to-peer nature of the system.
+
+We want to emulate the convenience and simplicity of an environment hosted on a central server within the peer-to-peer network.
+We work on achieving this by replicating user sites across the network using a distributed hash table (DHT).
+
+In order for this system to work, the data for a seller's marketplace and ratings has to satisfy the following conditions: it must replicated across several nodes, it must maintain its integrity and be mutable only by the seller/publisher, and it must be quickly accessible by the users of the system.
 
 We intend to implement a system of replication that brings two main advantages.
-First, it would allow users the convenience of not having to keep their server up constantly if they want buyers to see their wares.
+First, it allows users the convenience of not having to keep their server up constantly if they want buyers to see their wares.
 Second, it increases availability: in the event that a seller's machine or otherwise needs to go offline, his or her marketplace is being hosted by other nodes in the P2P network.
 
 Replication also has two downsides.
 First, we must ensure that when Bob requests data for Alice's market, he receives the most up-to-date version of her market. We address the challenge of synchronization later.
 Second, replication disincentivizes users from maintaining their servers. That is, what is to stop Bob from powering down or disconnecting his machine with great frequency if Alice is hosting his marketplace for him? We address this problem by giving users with greater hosting uptime in the network certain perks and community incentives, such as paying smaller commissions to the third party arbiter during transactions, and positive or negative indicators in the reviews section attached to each user.
 
+The rest of this paper is structured as follows.
+Section~\ref{sec:high_level} describes how the \OpenBazaar/ ecosystem works at a high level between sellers, buyers and arbiters.
+Section~\ref{sec:low_level} provides an overview on DHTs and \Kademlia/, our DHT of choice.
+Section~\ref{sec:entangled} briefly describes \Entangled/, the actual Python implementation of \Kademlia/ we use.
+Section~\ref{sec:design_challenges} explains the challenges faced when trying to balance replication and synchronization, and how both might be achieved with \Entangled/.
+Section~\ref{sec:implementation} gives an account of the struggles experienced during implementation, all the trials and tribulations of making several gargantuan libraries work in harmony.
+Section~\ref{sec:evaluation} reports on how we might assess how effective \Entangled/'s replication strategy is on availability, and on how we might evaluate its level of synchronization.
+Section~\ref{sec:conclusion} concludes.
+
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
 \section{How it works}
+\label{sec:high_level}
 A user downloads the market software, which runs a daemon in the background and allows a user to become a node in a distributed network with a P2P library known as ZeroMQ, or \ZMQ/. 
 
 For Alice to become a seller, she can edit an HTML file designated as her seller page.
@@ -135,22 +169,36 @@ Finally, each participant rates all other participants.
 Ratings are cryptographically signed with the rater's private key, which prevents users from forging reviews.
 Sellers with better ratings will naturally attract more buyers. 
 
+
+
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
 \section{Architectural Overview}
-The \href{https://github.com/OpenBazaar/OpenBazaar}{{\OpenBazaar/} repository} is incipient but constantly being updated.
+\label{sec:low_level}
+The \OpenBazaar/ repository is incipient but constantly being updated.
 Currently, the only supported features are the ability to connect to the distributed marketplace and the ability to view your market in the browser; transactions, ratings, and arbitrations are not possible.
 Furthermore, the data for the marketplace is stored persistently with a user-created MongoDB database.
 However, we would like to ensure the availability of every user's marketplace by spreading out data.
 This is done with a distributed hash table (DHT), which provides fault tolerance, scalability, and decentralized autonomy.
 
+% % % % % % % % % % %
+% % % % % % % % % % %
+% % % % % % % % % % %
 \subsection{What is a DHT?}
-
 A DHT is just a distributed dictionary; that is, hash table buckets are nodes across a network.
 Just like any other lookup service, it maps keys to values.
 In this case, the keys are hashed files or hashed file locations, and the values are the files themselves.
 That is, given some key $k = hash(filename)$, the DHT should be able to figure out which node hosts \emph{filename}, thereby allowing other nodes to request that specific file.
 This is shown in Figure~\ref{DHT}.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=0.5\textwidth]{images/DHT.png}
   \caption{\label{DHT}}
@@ -162,22 +210,29 @@ Specifically, a node $n$ owns a key $k$ if $n$ is the closest node to $k$.
 ``Nearness'' is computed by a distance function $\delta(k, n)$, which varies depending on the DHT.
 
 When deploying a distance function, one of the main considerations is load balancing.
-Ideally, the keyspace is partitioned evenly between all the nodes in the network, so one node doesn't store more keys than another. If this is not the case, then that node can get bogged down, and the entire system will suffer in performance.
+Ideally, the keyspace is partitioned evenly between all the nodes in the network, so one node doesn't store more keys than another.
+If this is not the case, then that node can get bogged down, and the entire system will suffer in performance.
 
 This form of consistent hashing ensures that when a node is added or removed from a system, only the keys owned by adjacent nodes are changed. 
 When a node joins the system, it takes responsibility for some of its neighbor's keys.
 When a node crashes or leaves the system, the keys mapping to the data it held must be allocated to new nodes.
 Moreover, the more nodes are in a system, the fewer keys have to be remapped on every node entry or exit.
+In general, consistent hashing makes the DHT more tolerant to \emph{node churn}.
 This is yet another advantage a DHT holds over a traditional hash table, which remaps its entire keyspace when a bucket is added or removed.
 
-
-
+% % % % % % % % % % %
+% % % % % % % % % % %
+% % % % % % % % % % %
 \subsection{Why Kademlia?}
 
+% % % % % %
+% % % % % %
+% % % % % %
 \subsubsection{Unique Features}
-There are many different kinds of DHTs out there. They differ in the size of their address space (128- or 160-bit keys?), in the type of hash function is used (SHA-1, SHA-2, etc.), in what gets hashed to produce keys (file names, file contents, etc.), in redundancy and reliability (nodes can dynamically agree to store the same key, just in case one them crashes), in the way traffic is routed, and in many other ways.
+There are many different kinds of DHTs out there.
+They differ in the size of their address space (128- or 160-bit keys?), in the type of hash function is used (SHA-1, SHA-2, etc.), in what gets hashed to produce keys (file names, file contents, etc.), in redundancy and reliability (nodes can dynamically agree to store the same key, just in case one them crashes), in the way traffic is routed, and in many other ways.
 
-We opt for the Kademlia DHT, which has several unique features.
+We opt for the \Kademlia/ DHT, which has several unique features.
 First, it requires minimal configuration.
 When a node wants to join a network, little else is required of it than to perform a self-lookup.
 By performing a query, the requester becomes aware of all the nodes that exist between it and the request's intended recipient.
@@ -185,83 +240,200 @@ By performing a query, the requester becomes aware of all the nodes that exist b
 Second, this frequently updated awareness affords nodes the ability to route their queries through low-latency paths.
 And although knowledge spreads like the plague, there is a natural defense against denial of service attacks, since a node can only know about a limited number of other nodes.
 
-Third, not only can Kademlia nodes select low-latency routes, but they can also send parallel asynchronous queries to avoid timeout delays.
+Third, not only can \Kademlia/ nodes select low-latency routes, but they can also send parallel asynchronous queries to avoid timeout delays.
 
-Fourth, Kademlia features unidirectional routing, as opposed to bidirectional routing.
+Fourth, \Kademlia/ features unidirectional routing, as opposed to bidirectional routing.
 All node lookups and value lookups are guaranteed to converge on the same path, regardless of the requester.
 Thus, caching \kv/ pairs along a path will reduce latency.
 Unidirectionality is a consequence of using a symmetric distance function, namely \emph{bitwise exclusive or} (XOR).
-That is, the distance function is denoted by $\delta(x,y) = x \oplus y$, and its property of symmetry is denoted by $\delta(x,y) = \delta(y,x)$.\footnote{In Kademlia, the distance between two nodes is computed by taking the XOR of their two node IDs.}
+That is, the distance function is denoted by $\delta(x,y) = x \oplus y$, and its property of symmetry is denoted by $\delta(x,y) = \delta(y,x)$.\footnote{In \Kademlia/, the distance between two nodes is computed by taking the XOR of their two node IDs.}
 
+% % % % % %
+% % % % % %
+% % % % % %
 \subsubsection{Node State}
-Each Kademlia node stores a list for every bit in the address space, in this 160.
+Each \Kademlia/ node stores a list for every bit in the address space, in this 160.
 Think of these lists as a node's contacts or peers, and each element in the list stores a peer's IP, port, and node ID.
 For $0 \leq i < 160$, list $i$ stores peers whose distance falls within the interval $[2^i, 2^{i+1})$.
 That is, the $0^{\mathrm{th}}$ list stores peers that are 1 away; the $1^{\mathrm{st}}$ list, peers that are 2 or 3 away; the $2^{\mathrm{nd}}$ list, peers that are 4, 5, 6, or 7 away; and so on.
 
-Figure~\ref{tree} shows the general structure of the network. Nodes are viewed as leaves in a binary tree. The gray ovals form the peer lists for node 6 (colored in black). The $2^{\mathrm{nd}}$ peer list exclude node 3, which is not in the network.
+Another characteristic of these lists is that all the nodes in the $i^{\mathrm{th}}$ list share the same $159 - i$ most significant bits of their node IDs. For instance, if node $n_1$ is one unit away from node $n_2$ -- denoted by $n_1 \oplus n_2 = 1$ -- then the identifiers of $n_1$ and $n_2$ share all but the least significant bit, by definition of XOR.
 
-\begin{figure}[h!]
+Figure~\ref{tree} shows the general structure of the network.
+Nodes are viewed as leaves in a binary tree.
+The gray ovals form the peer lists for node 6 (colored in black).
+The $2^{\mathrm{nd}}$ peer list excludes node 3, which is not in the network.
+
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=0.5\textwidth]{images/tree}
-  \caption{\label{tree}Nodes are leaves. $k$-buckets are increasingly large neighborhoods/subtrees.}
+  \caption{\label{tree}Nodes are leaves. \kbucket/s are increasingly large neighborhoods/subtrees.}
 \end{figure}
 
-These lists are known as $k$-buckets.
-The peers inside each $k$-bucket are ordered by how recently they were seen, with the most recent encounters at the tail.
-For small values of $i$, the $k$-buckets are probably going to be empty.
-That is, the $0^{\mathrm{th}}$ $k$-bucket, which stores the peer that is one away, is almost certainly going to be empty; this is because the keyspace is so large that we will rarely see $k_1 \oplus k_2 = 1$.
-In layman terms, nodes are going to be spread out, so the $k$-buckets that can store a wider range of nodes are more likely to be filled.
+These lists are known as \kbucket/s.
+The peers inside each \kbucket/ are ordered by how recently they were seen, with the most recent encounters at the tail.
+For small values of $i$, the \kbucket/s are probably going to be empty.
+That is, the $0^{\mathrm{th}}$ \kbucket/, which stores the peer that is one away, is almost certainly going to be empty; this is because the keyspace is so large that we will rarely see $k_1 \oplus k_2 = 1$.
+In layman terms, nodes are going to be spread out, so the \kbucket/s that can store a wider range of nodes are more likely to be filled.
 
-However, there is a limit to how large a $k$-bucket can get: that limit is determined by a system-wide parameter, $k$. Every time a node receives a request or reply, it updates its $k$-bucket for the sender. If the sender is already in the appropriate $k$-bucket, it moves to the tail of the list. If there are fewer than $k$ entries in the bucket, the sender moves to the tail as well. If the bucket is full, then the recipient node pings the least-recently seen node at the head of the list and waits for a response; if no response comes, the sender node is inserted at the list tail; but if the least-recently seen node responds, then it moves to the list tail and the sender node is discarded.
+However, there is a limit to how large a \kbucket/ can get: that limit is determined by a system-wide parameter, $k$.
+Every time a node receives a request or reply, it updates its \kbucket/ for the sender.
+If the sender is already in the appropriate \kbucket/, it moves to the tail of the list.
+If there are fewer than $k$ entries in the bucket, the sender moves to the tail as well.
+If the bucket is full, then the recipient node pings the least-recently seen node at the head of the list and waits for a response; if no response comes, the sender node is inserted at the list tail; but if the least-recently seen node responds, then it moves to the list tail and the sender node is discarded.
 
-This least-recently seen eviction policy has two main advantages. First, it is a natural defense against flooding attacks, like DDoS, since the $k$-buckets are capped in size. Second, the preference for old contacts has been empirically shown to have availability benefits: the longer a node has been up, the more likely it is to stay up for another hour.
+This least-recently seen eviction policy has two main advantages.
+First, it is a natural defense against flooding attacks, like DDoS, since the \kbucket/s are capped in size.
+Second, the preference for old contacts has been empirically shown to have availability benefits: the longer a node has been up, the more likely it is to stay up for another hour.
 
+% % % % % %
+% % % % % %
+% % % % % %
 \subsubsection{Protocol}
 
-The Kademlia protocol is comprised of four main RPC calls: \ping/, \store/, \findNode/, and \findValue/.
+The \Kademlia/ protocol is comprised of four main RPC calls: \ping/, \store/, \findNode/, and \findValue/.
 
-The \ping/ RPC checks to see if a node is online and, as previously mentioned, is used when a $k$-bucket is full and a node wants the status of the least-recently seen peer in that bucket.
+The \ping/ RPC checks to see if a node is online and, as previously mentioned, is used when a \kbucket/ is full and a node wants the status of the least-recently seen peer in that bucket.
 
 \store/ tells a node to store a \kv/ pair.
 
-The \findNode/ RPC takes a 160-bit node ID as an argument and returns the $k$ nodes that are closest to the target ID. \findValue/ works much like \findNode/, except the recipient of a \findValue/ RPC will return a stored value if it has received a \store/ RPC for the key.
+The \findNode/ RPC takes a 160-bit node ID as an argument and returns the $k$ nodes that are closest to the target ID.
+\findValue/ works much like \findNode/, except the recipient of a \findValue/ RPC will return a stored value if it has received a \store/ RPC for the key.
 
-Underlying these RPCs is the most important and most complex operation in Kademlia: node lookup. This entails locating the $k$ nodes closest to a given node ID. The lookup initiator starts by picking $\alpha = 3$ nodes from its closest non-empty $k$-bucket (remember that the closest $k$-buckets will probably be empty) and then sends parallel, asynchronous \findNode/ RPCs to the $\alpha$ nodes. Following those \findNode/ RPCs, the initiator will become privy to new nodes and can query those. If a round of queries does not return a single node closer to the target node, then the initiator queries nodes that have not already been queried. The lookup ends when it can find nothing closer and when the $k$ closest nodes have all responded.
+Underlying these RPCs is the most important and most complex operation in \Kademlia/: node lookup.
+This entails locating the $k$ nodes closest to a given node ID.
+For instance, node lookup is used in the \store/ RPC for replication:
+when a \kv/ pair is stored at a particular target node, it is also stored at the $k$ closest peers of that target node.
 
-Node lookup is used in the \store/ RPC for replication. When a \kv/ pair is stored at a particular target node, it is also stored at the $k$ closest peers of that target node. Replica entries are kept fresh since nodes republish their \kv/ pairs on the hour, and since entries will expire after 24 hours to limit stale data. Finally, when node $a$ encounters another node $b$ that is closer to some of $a$'s \kv/ pairs, $a$ replicates them over to $b$.
+Node lookup works in the following way:
+The lookup initiator starts by picking $\alpha = 3$ nodes from its closest non-empty \kbucket/ (remember that the closest \kbucket/s will probably be empty) and then sends parallel, asynchronous \findNode/ RPCs to the $\alpha$ nodes.
+Following those \findNode/ RPCs, the initiator will become privy to new nodes and can query those.
+If a round of queries does not return a single node closer to the target node, then the initiator queries nodes that have not already been queried.
+The lookup ends when it can find nothing closer and when the $k$ closest nodes have all responded.
 
-\section{Entangled}
+More importantly, the \Kademlia/ protocol has replication built into its DNA.
+First, nodes must republish their \kv/ pairs on the hour.
+Second, entries will expire after 24 hours to limit stale data.
+Finally, when node $a$ encounters another node $b$ that is closer to some of $a$'s \kv/ pairs, $a$ replicates them over to $b$.
+In short, the marketplace is kept fresh and up to date.
 
-We use Entangled, a Python implementation of the Kademlia DHT.
-In addition, Entangled also features a \delete/ RPC for deleting \kv/ pairs from the DHT, a fully distributed peer-to-peer tuple space, and keyword-based operations, such as publish, search and remove.
 
 
 
+
+
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+\section{Entangled API}
+\label{sec:entangled}
+We use \Entangled/, a DHT written in Python that builds off of \Kademlia/.
+
+The main object we use is {\sc EntangledNode}, which is basically a \Kademlia/ node but with a few more non-standard RPCs, such as \delete/.
+
+\Kademlia/ nodes feature the four RPCs -- \ping/, \store/, \findValue/, and \findNode/ -- as well as methods to join the network and to republish and expire data.
+Each \Kademlia/ node stores a routing table, which includes methods to add, remove, and find node contacts. Additionally, the routing table has a method to find all the \kbucket/s that need refreshing and a method to update the ``last accessed'' timestamp of the \kbucket/ that covers the range containing a specified key argument.
+
+
+
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
 \section{Design Challenges}
+\label{sec:design_challenges}
+
+% % % % % % % % % % %
+% % % % % % % % % % %
+% % % % % % % % % % %
 \subsection{Replication}
+\label{subsec:design_challenges_replication}
+
+How much replication is enough data?
+Suppose there are 100 users in the \OpenBazaar/ network.
+There must be some $\omega < 100$ for which if we replicate Alice's data onto $\omega$ other nodes, we can ensure with sufficiently high probability that Alice's marketplace will be available ``virtually'' all the time.
+
+Optimal replication strategies have been explored in \cite{cohen}.
+Fortunately, \Kademlia/ itself is designed to handle this problem.
+As previously stated, nodes republish \kv/ pairs each hour, entries expire after 24 hours, and data is replicated onto any nodes encountered that are closer to the data's key.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.45\textwidth]{images/entangled_replication}
+  \caption{\label{entangled_replication}Multiple nodes respond to a \findValue/ query.}
+\end{figure}
+
+The \Entangled/ implementation of these features is less clear, however.
+It can be gleaned from \Entangled/'s example program that some sort of replication mechanism is at play, as seen in Figure~\ref{entangled_replication}.
+
+Indeed, just as the \Kademlia/ paper describes, the \Entangled/ node implementation periodically performs \kbucket/ refreshes, which entails republishing and replicating the data as necessary.
+
+% % % % % % % % % % %
+% % % % % % % % % % %
+% % % % % % % % % % %
 \subsection{Synchronization}
+\label{subsec:design_challenges_synchronization}
+There is a natural tradeoff between replication and synchronization.
+The more replicas a system has, the more effort it must expend in keeping those replicas up-to-date.
+
+Fortunately, the \Entangled/ datastore objects have several methods that are conducive to data consistency: they know when a \kv/ pair was last published and originally published, as well as the node ID of the original publisher.
+Having access to when an entry was last published is critical to synchronization, as it is now possible to implement a ``take the most recent'' scheme.
+Of course, this is not without its pitfalls -- clock skew and clock drift -- but their circumvention is beyond the scope of this paper.
 
 
 
+
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
 \section{Implementation}
+\label{sec:implementation}
 Our implementation of this system began with reading through the source code and limited documentation of the various pieces of what was to be in our final system and understanding how each of the pieces worked and interacted.
 Running the actual server for the nodes is an implementation called \Tornado/, that handles the creation of a webserver and the majority of the transport layer.
 The \OpenBazaar/ P2P interactions run on a network library called ZeroMQ (\ZMQ/) that handles most of the peer-to-peer setup and network maintenance between the nodes in the system.
 The system is designed fairly sensibly, with the various cryptographic components separated out into seperate modules from the core market interactions.
-The website itself is accessed through a browser, typically at {{\sc localhost:8888}}, and is a fairly straightforward HTML and javascript site that allows for updates to your own market and provides a GUI for interaction with other sites in the network.
+The website itself is accessed through a browser, typically at {\sc localhost:8888}, and is a fairly straightforward HTML and javascript site that allows for updates to your own market and provides a GUI for interaction with other sites in the network.
 
+% % % % % % % % % % %
+% % % % % % % % % % %
+% % % % % % % % % % %
 \subsection{Current Implementation}
 The current implementation is evolving rapidly with contributions from the open-source community, but the basic structure of the codebase has remained relatively the same.
 The majority of the market interactions are implemented in the node folder.
 Files within here create the various networking components, including event handlers and protocol implementations, that allow the market to function on its lowest layer. 
 
+% % % % % % % % % % %
+% % % % % % % % % % %
+% % % % % % % % % % %
 \subsection{Additions}
 % describe modifications to market, run, tornadoloop, etc
+% TODO
+created launch.py script to create a command-line interface.
+modified tornadoloop.py to handle creation of the \Entangled/ node, modified the implementation of the main eventloop to use both zeromq and \Entangled/
+modified market.py to replace peer-to-peer market functionality with called to the \Entangled/ node and network on both the sending and recieving end. some code deemed unnceessary due to this change
 
-
+% % % % % % % % % % %
+% % % % % % % % % % %
+% % % % % % % % % % %
 \subsection{Issues}
 
+% % % % % %
+% % % % % %
+% % % % % %
 \subsubsection{Understanding the codebase}
 The first major issue we had was understanding a large, growing, poorly documented \OpenBazaar/ codebase.
 Even as we were reading, new commits were being made to the repository on a daily basis.
@@ -272,43 +444,134 @@ We spent most of our time on the market interactions where we would be implement
 In this manner, we were able to make sense of a codebase tens of thousands of lines long to implement our own functionality within it.
 The methodology we found useful was finding a starting point, in our case the launch point for the application, and then following the method calls and initializations to understand the connections between the various pieces of the program.
 
+% % % % % %
+% % % % % %
+% % % % % %
 \subsubsection{Conflicting Systems}
-Once we had gotten over the hurdle of understanding how the various components of the existing codebase functioned, figuring out how to utilize the \Entangled/ APIs to create the desired functionality was not too difficult.
-The function calls created straightforward ways to publish and remove data from the network, and retrieve it as desired.
-However, out of the box the \Entangled/ implementation used a different networking engine than the rest of the \OpenBazaar/ project, which created frustrating conflicts in getting that network up and running.
+Once we had gotten over the hurdle of understanding the functions of various components of the existing codebase, it was not too difficult to figure out how to utilize the \Entangled/ APIs to create the desired functionality.
+The function calls provide straightforward ways to publish, remove, and retrieve data from the network.
+However, out of the box, the \Entangled/ implementation used a different networking engine than the rest of the \OpenBazaar/ project.
+Thus, we were left with a chaotic snafu created by two clashing Python networking libraries.
 
-The root of our main problem was that two network event listening loops cannot both be running in the main thread.
-The \OpenBazaar/ project was set up to be running a loop from the \Tornado/ library, which handled all its incoming requests and outgoing messages as it should.
-The \Entangled/ nodes relied on an instance of a module called a \reactor/ from the \Twisted/ python library in order to handle its network interactions.
+The root of our main problem was that two network event listening loops were trying to run on the same main thread: this is not possible.
+On the one hand, \OpenBazaar/ was running a loop from the \Tornado/ library, which handled all its incoming requests and outgoing messages.
+On the other hand, \Entangled/ nodes handled their network interactions with an object called \reactor/ from the \Twisted/ Python module.
 
-There is little information in the \Entangled/ documentation about what components of the \Twisted/ library are required to be running for the \Entangled/ nodes to begin functioning.
-In the example programs provided with the \Entangled/ source code, the only visible use of the \Twisted/ library is unrelated to the DHT, and involves the direct connections in the application-specific function of filesharing.
-Initially, I had thought that the \reactor/ was unnecessary for just running the DHT, which lead me to eliminate all other possible sources of issues until I was lead back to the same line I had commented out earlier as the only deviation in my implementation.
-In hindsight, it makes sense that the nodes need an event listener, and overlooking that fact was due to both my relative inexperience in python and a lack of specificity in the \Entangled/ documentation.
+\Entangled/ does not provide documentation on which \Twisted/ components are required for an \Entangled/ node to function.
+In the \Entangled/ library's example programs, the only visible use of the \Twisted/ library is unrelated to the DHT, and involves the direct connections in the application-specific function of file sharing.
 
-However, that merely brought me back to the same issue that had lead to the removal of that line of code in the first place.
+For this reason, we initially assumed the \reactor/ was unnecessary for just running the DHT.
+% which led me to eliminate all other possible sources of issues until I was led back to the same line I had commented out earlier as the only deviation in my implementation. 
+% TODO what line? reactor.run()? vs IOLoop.instance().start()
+In hindsight, it makes sense that the nodes need an event listener, and overlooking that fact was due to both my relative inexperience in Python and a lack of specificity in the \Entangled/ documentation.
+
+However, that merely brought me back to the same issue that had led to the removal of that line of code in the first place.
 My initial plan was to run one of the event loops in the seperate thread.
-However, because of the way signals from the operating system are handled in python, both of the loops demand to be run in the main thread, and produce a variety of error messages to this effect if you try to implement them in a manner otherwise.
+However, because of the way signals from the operating system are handled in Python, both of the loops demand to be run in the main thread, and produce a variety of error messages to this effect if you try to implement them in a manner otherwise.
 Additionally, due to the interconnected nature of the \Entangled/ node and the market node, running one in a seperate process would just have made a bad situation worse, with extra layers of complexity necessitated for inter-process communication.
 
+% % % % % %
+% % % % % %
+% % % % % %
 \subsubsection{Conflict Resolution}
-As somewhat of a logjam, I dove into the sourcecode for the \Tornado/ and \Twisted/ libraries, looking for any commonality in the event loops that could be exploited. As it turns out, we were not the first to have this problem, and buried within the configuration options for \Tornado/ were two options for bridges between the \Twisted/ \reactor/ event loop, and the \Tornado/ IOloop. One of these replaced the builtin \Tornado/ IOloop with the twisted \reactor/ and reimplemented the \Tornado/ IOloop API onto of the resulting \Twisted/ \reactor/. This allowed for the \Entangled/ nodes to interact with the underlying \reactor/, and for the rest of the existing application to interface with the \Tornado/ API built ontop of it.
+After somewhat of a logjam, we dove into the sourcecode for the \Tornado/ and \Twisted/ libraries, looking for any commonality in the event loops that could be exploited.
+As it turns out, we were not the first to have this problem, and buried within the configuration options for \Tornado/ were two options for bridges between the \Twisted/ \reactor/ \emph{event loop} and the \Tornado/ \emph{IOloop}.
+One of these replaced the built-in \Tornado/ IOloop with the \Twisted/ \reactor/ and re-implemented the \Tornado/ IOloop API onto the resulting \Twisted/ \reactor/.
+This allowed for the \Entangled/ nodes to interact with the underlying \reactor/, and for the rest of the existing application to interface with the \Tornado/ API built on top of it.
 
-Happily, this solution worked, allowing the entangled nodes to connect to one another and effectively combining the two seperate nodes in the previous conception of the system into a single one, running on the same event loop in the same thread.
+It was a relief to see this solution work, allowing the \Entangled/ nodes to connect to one another and effectively combining the two seperate nodes in the previous conception of the system into a single one, running on the same event loop in the same thread.
 
-After this solution was found, a few details remained to be ironed out with out untested implementation of the Entangled node interactions through API calls. Entangled encodes the data passed into the DHT...
+After this solution was found, a few details remained to be ironed out with out untested implementation of the \Entangled/ node interactions through API calls.
+\Entangled/ encodes the data passed into the DHT... %TODO
 
+
+
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
 \section{Evaluation}
-Using evaluation tools in launch.py
+\label{sec:evaluation}
 
-pretty graphs...
+% % % % % %
+% % % % % %
+% % % % % %
+\subsection{Evaluating availability}
+As mentioned in Subsection~\ref{subsec:design_challenges_replication}, there must some optimal amount of nodes to which the system can replicate a \kv/ pair and guarantee the pair's availability nearly all the time.
+To test replication's effect on availability, we could launch a network with $n$ nodes.
+Then, after some time, we could crash $\gamma < n$ nodes and perform a \findValue/$(key)$.
+If the \findValue/ request does not return the correct value, then this ``availability test'' fails.
+To fairly assess the system, we would run a sufficient number of ``availability tests.''
+
+% % % % % %
+% % % % % %
+% % % % % %
+\subsection{Evaluating synchronization}
+In theory, testing synchronization would not be too much of a problem.
+Since a user may only change his market by modifying the locally stored HTML page, we would push this out to other nodes each time the user logs in.
+
+As described in \label{subsec:design_challenges_synchronization}, the \Entangled/ API provides arguments for specifying publish dates. Specifically, nodes know when a \kv/ pair was last published and originally published, as well as the node ID of the original publisher. To ensure synchronization, we must prohibit nodes from replication data willy-nilly. This occurs in all the places where a node receives a request or reply.
+
+Because replication is ingrained in node lookup, and because node lookup is ingrained in each of the protocols (\emph{iterativeStore} and \emph{iterativeFindNode}), we must make modifications to only replicate the newest data.
+That is, suppose node $a$ encounters another node $b$ that is closer to some of $a$'s \kv/ pairs. Then node $a$ will only replicate those \kv/ pairs to $b$ if $a$'s copies are newer.
+
+To test the effectiveness of timestamping, we can the system several times, each time with a different set of parameters. The \Kademlia/ system-wide parameters, found in \emph{constants.py}, include: the degree of parallelism in network calls (denoted by $\alpha$), the maximum number of contacts stored in a bucket (denoted by $k$), the seconds before an RPC times out, the delay in seconds between iterations of iterative node lookups, the number of seconds before a $k$-bucket must be refreshed, the interval at which nodes replicate and republish the date they're holding, the amount of time that can occur before data expires and the original publisher must republish the data, how often a node checks to refresh its data, and the maximum size of a UDP datagram.
+
+Of these parameters, the penultimate is the most important. Nodes must constantly worry that their data is not the most updated, and must perform frequent refreshes. This will ensure that when \emph{iterativeFindValue} is called, the value returned is not stale. Overall, to test synchronization, we merely have to start the system, make changes to markets, and wait until a user's market displays an older version of iteself in the browser. 
 
 
-\section{Outside Work}
-Interestingly, while we have been implementing our fork of this project, the person who has taken over primary development of project on github has begun some limited work on implementing a version of the Kademlia DHT. The branch on github is fairly limited, currently containing an implementation of the Kademlia Datastore and a few placeholders for where future code may go, but the similarity in our ideas is interesting.
 
+
+
+
+
+
+
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % %
 \section{Conclusion}
+\label{sec:conclusion}
 
-we are super hackers!
+% % % % % %
+% % % % % %
+% % % % % %
+\subsection{Outside Work}
+Interestingly, while we have been implementing our fork of this project, the person who has taken over primary development of project on GitHub has begun some limited work on implementing a version of the \Kademlia/ DHT.
+The branch on GitHub is fairly limited, currently containing an implementation of the \Kademlia/ Datastore and a few placeholders for where future code may go, but the similarity in our ideas is interesting.
+
+% % % % % %
+% % % % % %
+% % % % % %
+\subsection{Lessons learned}
+Over the course of this work, we learned several lessons.
+First, working with large codebases is suprisingly approachable after a steep initial learning curve.
+Second, using libraries can be powerful but treacherous, as we saw with our conflict between \Entangled/ and \Tornado/.
+Third, a DHT with a good API can provide very useful functionality in a peer-to-peer system.
+Fourth, our efforts have been validated by similar work in the open-source project.
+Fifth, we are super hackers, even more so now than before.
+Lastly, a huge thanks to Jeannie -- you're the best.
+
+\begin{thebibliography}{9}
+
+\bibitem{kademlia}
+  Petar Maymounkov, and David Mazi\`{e}res,
+  \emph{Kademlia: A Peer-to-peer Information System Based on the XOR Metric},
+  2002.
+
+\bibitem{cohen}
+  Edith Cohen, and Scott Shenker,
+  \emph{Replication strategies in unstructured peer-to-peer networks}.
+  New York, NY,
+  2002.
+\end{thebibliography}
 
 \end{document}

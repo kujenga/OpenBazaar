@@ -165,7 +165,7 @@ class Market(object):
                                             self.mypage, self.signature,
                                             self.nickname))
 
-        print "pickle.dumps(page_data): %s" % page_data
+        #print "pickle.dumps(page_data): %s" % page_data
         #print "pickle.loads(page_data): %s" % (pickle.loads(page_data))
 
         # creates a sha1 has of the current public key to get it into hashtable format

@@ -198,7 +198,7 @@ In this case, the keys are hashed files or hashed file locations, and the values
 That is, given some key $k = hash(filename)$, the DHT should be able to figure out which node hosts \emph{filename}, thereby allowing other nodes to request that specific file.
 This is shown in Figure~\ref{DHT}.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=0.5\textwidth]{images/DHT.png}
   \caption{\label{DHT}}
@@ -264,7 +264,7 @@ Nodes are viewed as leaves in a binary tree.
 The gray ovals form the peer lists for node 6 (colored in black).
 The $2^{\mathrm{nd}}$ peer list excludes node 3, which is not in the network.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=0.5\textwidth]{images/tree}
   \caption{\label{tree}Nodes are leaves. \kbucket/s are increasingly large neighborhoods/subtrees.}
@@ -365,7 +365,7 @@ Optimal replication strategies have been explored in \cite{cohen}.
 Fortunately, \Kademlia/ itself is designed to handle this problem.
 As previously stated, nodes republish \kv/ pairs each hour, entries expire after 24 hours, and data is replicated onto any nodes encountered that are closer to the data's key.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=0.45\textwidth]{images/entangled_replication}
   \caption{\label{entangled_replication}Multiple nodes respond to a \findValue/ query.}
@@ -374,13 +374,13 @@ As previously stated, nodes republish \kv/ pairs each hour, entries expire after
 The \Entangled/ implementation of these features is less clear, however.
 It can be gleaned from \Entangled/'s example program that some sort of replication mechanism is at play, as seen in Figure~\ref{entangled_replication}.
 
-%TODO find replication code in entangled.kademlia.node
 Indeed, just as the \Kademlia/ paper describes, the \Entangled/ node implementation periodically performs \kbucket/ refreshes, which entails republishing and replicating the data as necessary.
 
 % % % % % % % % % % %
 % % % % % % % % % % %
 % % % % % % % % % % %
 \subsection{Synchronization}
+\label{subsec:design_challenges_synchronization}
 There is a natural tradeoff between replication and synchronization.
 The more replicas a system has, the more effort it must expend in keeping those replicas up-to-date.
 
@@ -512,8 +512,17 @@ To fairly assess the system, we would run a sufficient number of ``availability 
 % % % % % %
 % % % % % %
 \subsection{Evaluating synchronization}
-% TODO
+In theory, testing synchronization would not be too much of a problem.
+Since a user may only change his market by modifying the locally stored HTML page, we would push this out to other nodes each time the user logs in.
 
+As described in \label{subsec:design_challenges_synchronization}, the \Entangled/ API provides arguments for specifying publish dates. Specifically, nodes know when a \kv/ pair was last published and originally published, as well as the node ID of the original publisher. To ensure synchronization, we must prohibit nodes from replication data willy-nilly. This occurs in all the places where a node receives a request or reply.
+
+Because replication is ingrained in node lookup, and because node lookup is ingrained in each of the protocols (\emph{iterativeStore} and \emph{iterativeFindNode}), we must make modifications to only replicate the newest data.
+That is, suppose node $a$ encounters another node $b$ that is closer to some of $a$'s \kv/ pairs. Then node $a$ will only replicate those \kv/ pairs to $b$ if $a$'s copies are newer.
+
+To test the effectiveness of timestamping, we can the system several times, each time with a different set of parameters. The \Kademlia/ system-wide parameters, found in \emph{constants.py}, include: the degree of parallelism in network calls (denoted by $\alpha$), the maximum number of contacts stored in a bucket (denoted by $k$), the seconds before an RPC times out, the delay in seconds between iterations of iterative node lookups, the number of seconds before a $k$-bucket must be refreshed, the interval at which nodes replicate and republish the date they're holding, the amount of time that can occur before data expires and the original publisher must republish the data, how often a node checks to refresh its data, and the maximum size of a UDP datagram.
+
+Of these parameters, the penultimate is the most important. Nodes must constantly worry that their data is not the most updated, and must perform frequent refreshes. This will ensure that when \emph{iterativeFindValue} is called, the value returned is not stale. Overall, to test synchronization, we merely have to start the system, make changes to markets, and wait until a user's market displays an older version of iteself in the browser. 
 
 
 

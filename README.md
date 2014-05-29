@@ -2,19 +2,20 @@
 
 Find the writeup [here](https://www.sharelatex.com/project/537a937be5aa09f53f0630a7?r=39f57a04&rs=ps&rm=d)  
 
-This is a fork for a final project for cs339 at Williams College. We intent to use a DHT to modify this system so that one's site does not need to be locally hosted, but rather is hosted somewhere in the network as determined by the DHT. THis allows for users to not need a persistant connection to the network to remain running. encrypted orders will be stored by others and then can be read by the owner of the site when they do connect. Community incentives, such as favorable rates with escrow figures and better reviews or ratings, could be associated with uptime and the amount of data that they are hosting so that there is an incentive for users to be connected when possible. Replication is also crucial with the ability to update and synchronize a site in respone to cnahges from its owner.
+This is a fork for a final project for cs339 at Williams College. We have modified modified this system to use the Kademlia DHT so that one's site does not need to be locally hosted, but rather is hosted somewhere in the network as determined by the DHT. This eliminated the need for users to maintain a persistant connection to the network, maintaining a server, to remain active in the market. When users are offline, encrypted orders could be stored by others and then can be read by the owner of the site when they do connect. Community incentives, such as favorable rates with escrow figures and better reviews or ratings, could be associated with uptime and the amount of data that they are hosting so that there is an incentive for users to be connected when possible. Replication is also crucial with the ability to update and synchronize a site in response to changes from its owner.
 
-We intend to use the Entangled inplementation of the Kademlia DHT design, which runs on the Twisted library.
+We are using the Entangled inplementation of the Kademlia DHT design, which runs on the Twisted library. To have both the Entangled node and the market node running at the same time, the existing use of the TornadoIOLoop for the market node had to be modified. It now all runs of the Twisted Reactor with a TornadoLoop API ontop to allow for the continued function of the rest of the application without modification.
 
 - Entangled: http://entangled.sourceforge.net
 - Kademlia Specs: http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html#replication
 - Twisted: https://twistedmatrix.com/trac/
+- Tornado: http://www.tornadoweb.org/en/stable/
 
 ==============
 
-## running our fork and looping at processes
+## running our fork and looking at processes
 
-After your machine had been properly configured, you can run the program using the `launch.py` script in the top-level of the repository. This python script created a CLI for the user to interact with, functionality is farily simple to add by entending the functionality of the input listener.
+After your machine had been properly configured, you can run the program using the `launch.py` script in the top-level of the repository. This python script creates a simple CLI for the user to interact with, functionality is fairly simple to add by entending the functionality of the input listener. It currently supports killing a number of active nodes, viewing the active nodes, and creating new nodes, as well as shortcuts to the below terminal commands. Usage is viewable through the 'help' command while running the script.The 
 
 To look at the status of the nodes on the machine, open a new terminal window and use one or both of the following commands.
 - `ps aux | grep python`
@@ -39,9 +40,18 @@ To look at the status of the nodes on the machine, open a new terminal window an
 - ppl: Contains information on other users in the market. each other user has their own file with nickname, keypair, and description.
  - uncertain as to who's private key is stored for each. our's to communicate with them? Are they just test users?
 - pyelliptic: 
-- shop: Contains the files for the user's website and homepage within the marketplace
+- shop: Contains the files for the user's website and homepage within the marketplace, as well as the entangled node locations
 - test: Contains code to test certain encryption functionality
 - util: Contains a single file for bitcoin keypair generation. 
+
+
+## Amazon EC2 nodes Quick Start
+
+Make sure that the machine is running Ubuntu 12.04 or above with `lsb_release -d`
+
+run `./configure.sh` which is included in the repository, answer the prompts with a `Y` as necessary.
+
+When the process is completed, try to perform `./launch.py` and look to see what if any errors occur. If errors do occur, compare them with the different stages of the configure.sh file to see what might have gone wrong, or simply rectify them from the command line.
 
 ==============
 
@@ -69,47 +79,6 @@ We are continually on IRC chat at #OpenBazaar on Freenode
 ## Project Status
 
 All features are currently in alpha stage. Current functionality includes starting a connection to the distributed marketplace and viewing content in a browser. Transactions are not possible.
-
-## Vagrant Quick Start
-
-These instructions download a VirtualBox image (Ubuntu Trusty) and use Vagrant to configure an OpenBazaar node inside the virtual environment. When the node is running, you can navigate to http://localhost:8888 on your local machine to access the client. This setup should take less than 10GB and about an hour. These instructions should include all necessary code for starting OpenBazaar.
-
-1. This example is built on an Ubuntu Trusty host. Doesn't work from inside a virtual machine.
-
-    `sudo apt-get update`
-
-    `sudo apt-get install virtualbox git vagrant`
-
-2. clone openbazaar:
-
-    `git clone https://github.com/kujenga/OpenBazaar.git`
-
-    `cd OpenBazaar`
-
-3. Set up vagrant: (this will take a while!)
-
-    `vagrant up`
-
-4. Log into the vagrant instance:
-
-    `vagrant ssh`
-
-5. Start the OpenBazaar node:
-
-    `cd /vagrant && ./run_dev.sh`
-
-6. Now return to your host and open your web browser to:
-
-    `http://127.0.0.1:8888`
-
-
-## Amazon EC2 nodes Quick Start (no vagrant)
-
-Make sure that the machine is running Ubuntu 12.04 with `lsb_release -d`
-
-run `./configure.sh` which is included in the repository
-
-When the prcess is completed, try to perform `./run_dev.sh` and look to see what if any errors occur. If errors do occur, compare them with the different stages of the configure.sh file to see what might have gone wrong.
 
 ## Dependencies
 

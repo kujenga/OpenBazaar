@@ -52,7 +52,7 @@ class Market(object):
         MONGODB_URI = 'mongodb://localhost:27017'
         _dbclient = MongoClient()
         self._db = _dbclient.openbazaar
-
+        print type(self._db)
         self.settings = self._db.settings.find_one()
 
         welcome = True
@@ -60,6 +60,11 @@ class Market(object):
         if self.settings:
             if  'welcome' in self.settings.keys() and self.settings['welcome']:
                 welcome = False
+        else:
+            # creates the settings collection if it does not already exist
+            # self.settings = self._db.create_collection('settings')
+            pass
+
 
         # Register callbacks for incoming events
         transport.add_callback('query_myorders', self.on_query_myorders)
@@ -131,10 +136,9 @@ class Market(object):
         desc = data["desc"]
                 
         # unused mongodb ish from upstream merge
-        '''
-        nickname = self.settings['nickname'] if self.settings.has_key("nickname") else ""
-        storeDescription = self.settings['storeDescription'] if self.settings.has_key("storeDescription") else ""
-        '''
+        #nickname = self.settings['nickname'] if self.settings.has_key("nickname") else ""
+        #storeDescription = self.settings['storeDescription'] if self.settings.has_key("storeDescription") else ""
+       
         tagline = "%s: %s" % (nickname, desc) #, storeDescription)
         self.mypage = tagline
         self.nickname = nickname
@@ -200,11 +204,10 @@ class Market(object):
                 self._log.info("for key: " + key + " iteratve find returned result: " + str(result))
 				# pickle.loads() goes from str to dict
                 page = pickle.loads(result[key])
-                # go through each value and convert unicode to other type
-                print "result[key]: %s" % result[key]
+                #print "result[key]: %s" % result[key]
                 pubkey_in = page.get('pubkey')
                 page_in = page.get('text')
-                
+                print "retreived page: %s" % page
                 if pubkey_in and page_in:
                     self.pages[pubkey_in] = page_in
             else:
@@ -237,11 +240,16 @@ class Market(object):
         raise Exception("You should be using Entangled!")
         
         self._log.info("Someone is querying for your page")
+        self._transport.send(proto_page(self._transport._myself.get_pubkey(),
+                                        self.mypage, self.signature,
+                                        self.nickname))
+        '''
         self.settings = self.get_settings()
         self._log.info(base64.b64encode(self.settings['storeDescription'].encode('ascii')))
         self._transport.send(proto_page(self._transport._myself.get_pubkey().encode('hex'),
                                         self.settings['storeDescription'], self.signature,
                                         self.settings['nickname']))
+        '''
 
     def on_query_myorders(self, peer):
         self._log.info("Someone is querying for your page")
@@ -337,7 +345,7 @@ class Market(object):
     def get_settings(self):
         self._log.info(self._transport.market_id)
         settings = self._db.settings.find_one({'id':'%s'%self._transport.market_id})
-        print settings
+        print "settings: %s" % settings
         if settings:
             return { "bitmessage": settings['bitmessage'] if settings.has_key("bitmessage") else "",
                 "email": settings['email'] if settings.has_key("email") else "",

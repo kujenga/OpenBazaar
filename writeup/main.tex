@@ -91,6 +91,9 @@
 \newcommand{\delete}{}
 \def\delete/{{\sc delete}}
 
+\newcommand{\launch.py}{}
+\def\launch.py/{{\sc launch.py}}
+
 
 
 
@@ -508,6 +511,8 @@ Then, after some time, we could crash $\gamma < n$ nodes and perform a \findValu
 If the \findValue/ request does not return the correct value, then this ``availability test'' fails.
 To fairly assess the system, we would run a sufficient number of ``availability tests.''
 
+To facilitate this testing, there are several tools built into the \launch.py/ script file. After the initial set of nodes are created, which defaults to 4 but an be specified to any number, a few operations can be executed. First, a specified number of nodes can be killed, selected at random from the existing nodes. Secondly, more nodes can be created, launching them as part of the demo network. Lastly, the status of the network can be viewed, looking at the number of nodes and their associatied process IDs to match them with other external command line tools. These tools facilitate the testing process.
+
 % % % % % %
 % % % % % %
 % % % % % %
@@ -523,8 +528,6 @@ That is, suppose node $a$ encounters another node $b$ that is closer to some of 
 To test the effectiveness of timestamping, we can the system several times, each time with a different set of parameters. The \Kademlia/ system-wide parameters, found in \emph{constants.py}, include: the degree of parallelism in network calls (denoted by $\alpha$), the maximum number of contacts stored in a bucket (denoted by $k$), the seconds before an RPC times out, the delay in seconds between iterations of iterative node lookups, the number of seconds before a $k$-bucket must be refreshed, the interval at which nodes replicate and republish the date they're holding, the amount of time that can occur before data expires and the original publisher must republish the data, how often a node checks to refresh its data, and the maximum size of a UDP datagram.
 
 Of these parameters, the penultimate is the most important. Nodes must constantly worry that their data is not the most updated, and must perform frequent refreshes. This will ensure that when \emph{iterativeFindValue} is called, the value returned is not stale. Overall, to test synchronization, we merely have to start the system, make changes to markets, and wait until a user's market displays an older version of iteself in the browser. 
-
-
 
 
 
@@ -572,6 +575,13 @@ Lastly, a huge thanks to Jeannie -- you're the best.
   \emph{Replication strategies in unstructured peer-to-peer networks}.
   New York, NY,
   2002.
+
+\bibitem{cohen}
+  Andy Greenberg,
+  \emph{Inside the ‘DarkMarket’ Prototype, a Silk Road the FBI Can Never Seize}.
+  Wired.com,
+  April 24, 2014.
+
 \end{thebibliography}
 
 \end{document}

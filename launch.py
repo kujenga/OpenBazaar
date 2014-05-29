@@ -24,7 +24,7 @@ LOGDIR = "logs"
 # number of nodes to create
 SIZE = 4
 
-def destroyNetwork(nodes):
+def destroy_network(nodes):
     print 'Destroying Kademlia network...'
     i = 0
     for node in nodes:
@@ -33,7 +33,50 @@ def destroyNetwork(nodes):
         os.kill(node, signal.SIGTERM)
     print
 
-def demoMode():
+def kill_some(nodes,amt):
+    if amt < len(nodes):
+        print 'killing %d nodes out of %d remaining' % (amt,len(nodes))
+        from random import randint
+        for i in range(0,amt):
+            cur = nodes.pop(randint(0,len(nodes)-1))
+            print'killing node %s' % cur
+            os.kill(cur, signal.SIGTERM)
+    elif amt == len(nodes):
+        print 'killing all remaining %d nodes' % amt
+        destroy_network(nodes)
+    else:
+        print 'impossible, only %d nodes exist' % len(nodes)
+
+def respond_to_input(s,nodes):
+    if s.lstrip().startswith("help"):
+        print 'usage:'
+        print 'help: displays the command options'
+        print 'kill <number>: kills the specified number of nodes'
+        print 'create <number>: creates the specified number of nodes'
+        print 'destroy: destroys all nodes and quits the program'
+    elif s.lstrip().startswith("kill"):
+        try:
+            num = int(s.split(" ")[1].strip())
+        except:
+            print 'Please provide command of form: kill <number>'
+        print 'killing %d nodes' % num
+        kill_some(nodes,num)
+    elif s.lstrip().startswith("create"):
+        try:
+            num = int(s.split(" ")[1].strip())
+        except:
+            print 'Please provide command of form: create <number>'
+        print 'creating %d nodes' % num
+    elif s.lstrip().startswith("status"):
+        for i,node in enumerate(nodes):
+            print "node %d: %s" % (i+1,node)
+    elif s.lstrip().startswith("destroy"):
+        destroy_network(nodes)
+    else:
+        print 'Unrecognized command. Use \'help\' for more information'
+
+
+def demo_mode():
     demo_port = 47771
     demo_ip_prefix = "127.0.0."
     
@@ -62,19 +105,22 @@ def demoMode():
             demo_port += 1
     except KeyboardInterrupt:
         '\ncancelled launch process'
-        destroyNetwork(demo_nodes)
+        destroy_network(demo_nodes)
         sys.exit(1)
-    
+
+    time.sleep(1.75)
     print '\n\n---------------\nNetwork running\n---------------\n'
+    print 'use \'help\' for more information\n'
     # blocks until interrupt to shutdown nicely
-    
+
     try:
         while 1:
-            time.sleep(1)
+            s = raw_input('> ')
+            respond_to_input(s,demo_nodes)
     except KeyboardInterrupt:
         pass
     finally:
-        destroyNetwork(demo_nodes)
+        destroy_network(demo_nodes)
     
 
 # if executed directly, run the setup process
@@ -109,4 +155,4 @@ if __name__ == '__main__':
     
     # demo mode with multiple running in local context
     else:
-        demoMode()
+        demo_mode()

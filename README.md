@@ -30,11 +30,11 @@ To look at the status of the nodes on the machine, open a new terminal window an
 
 - ecdsa: elliptic curve cryptography resources
 - html: contains the actual website that the service uses, including a basic index.html and all the supporting files
-- ident:
+- ident: 
 - msig: sx test files for playing with multisig. folder contains README with a link for more info
 - node: contains the files that run the node on the client
  - files here handle all server interactions and communication with the outside world
-- obelisk:
+- obelisk: 
 - ppl: Contains information on each user in the market. Each other user has their own file with nickname, keypair, and description. Can launch the server with any one of them
 - pyelliptic: 
 - shop: Contains the files for the user's website and homepage within the marketplace, as well as the entangled node locations.
@@ -51,6 +51,8 @@ run `./configure.sh` which is included in the repository, answer the prompts wit
 When the process is completed, try to perform `./launch.py` and look to see what if any errors occur. If errors do occur, compare them with the different stages of the configure.sh file to see what might have gone wrong, or simply rectify them from the command line.
 
 ==============
+
+# OpenBazaar
 
 OpenBazaar is a decentralized marketplace proof of concept. It is based off of the POC code by the darkmarket team and protected by the GPL.
 

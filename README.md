@@ -1,7 +1,5 @@
 # Fork Description
 
-Find the writeup [here](https://www.sharelatex.com/project/537a937be5aa09f53f0630a7?r=39f57a04&rs=ps&rm=d)  
-
 This is a fork for a final project for cs339 at Williams College. We have modified modified this system to use the Kademlia DHT so that one's site does not need to be locally hosted, but rather is hosted somewhere in the network as determined by the DHT. This eliminated the need for users to maintain a persistant connection to the network, maintaining a server, to remain active in the market. When users are offline, encrypted orders could be stored by others and then can be read by the owner of the site when they do connect. Community incentives, such as favorable rates with escrow figures and better reviews or ratings, could be associated with uptime and the amount of data that they are hosting so that there is an incentive for users to be connected when possible. Replication is also crucial with the ability to update and synchronize a site in response to changes from its owner.
 
 We are using the Entangled inplementation of the Kademlia DHT design, which runs on the Twisted library. To have both the Entangled node and the market node running at the same time, the existing use of the TornadoIOLoop for the market node had to be modified. It now all runs of the Twisted Reactor with a TornadoLoop API ontop to allow for the continued function of the rest of the application without modification.
@@ -37,10 +35,9 @@ To look at the status of the nodes on the machine, open a new terminal window an
 - node: contains the files that run the node on the client
  - files here handle all server interactions and communication with the outside world
 - obelisk:
-- ppl: Contains information on other users in the market. each other user has their own file with nickname, keypair, and description.
- - uncertain as to who's private key is stored for each. our's to communicate with them? Are they just test users?
+- ppl: Contains information on each user in the market. Each other user has their own file with nickname, keypair, and description. Can launch the server with any one of them
 - pyelliptic: 
-- shop: Contains the files for the user's website and homepage within the marketplace, as well as the entangled node locations
+- shop: Contains the files for the user's website and homepage within the marketplace, as well as the entangled node locations.
 - test: Contains code to test certain encryption functionality
 - util: Contains a single file for bitcoin keypair generation. 
 

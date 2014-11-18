@@ -19,14 +19,12 @@ html/.DS_Store
 
 blockchain
 
-<<<<<<< HEAD
 *~
 *#
 
 entangled-0.1/build/*
 entangled-0.1/dist/*
-=======
 *.log
->>>>>>> upstream/master
+
 writeup/main.aux
 writeup/main.out

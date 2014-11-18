@@ -2,7 +2,7 @@
 
 This is a fork for a final project for cs339 at Williams College. We have modified modified this system to use the Kademlia DHT so that one's site does not need to be locally hosted, but rather is hosted somewhere in the network as determined by the DHT. This eliminated the need for users to maintain a persistant connection to the network, maintaining a server, to remain active in the market. When users are offline, encrypted orders could be stored by others and then can be read by the owner of the site when they do connect. Community incentives, such as favorable rates with escrow figures and better reviews or ratings, could be associated with uptime and the amount of data that they are hosting so that there is an incentive for users to be connected when possible. Replication is also crucial with the ability to update and synchronize a site in response to changes from its owner.
 
-We are using the Entangled inplementation of the Kademlia DHT design, which runs on the Twisted library. To have both the Entangled node and the market node running at the same time, the existing use of the TornadoIOLoop for the market node had to be modified. It now all runs of the Twisted Reactor with a TornadoLoop API ontop to allow for the continued function of the rest of the application without modification.
+We are using the Entangled implementation of the Kademlia DHT design, which runs on the Twisted library. To have both the Entangled node and the market node running at the same time, the existing use of the TornadoIOLoop for the market node had to be modified. It now all runs of the Twisted Reactor with a TornadoLoop API ontop to allow for the continued function of the rest of the application without modification.
 
 - Entangled: http://entangled.sourceforge.net
 - Kademlia Specs: http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html#replication
@@ -13,7 +13,7 @@ We are using the Entangled inplementation of the Kademlia DHT design, which runs
 
 ## running our fork and looking at processes
 
-After your machine had been properly configured, you can run the program using the `launch.py` script in the top-level of the repository. This python script creates a simple CLI for the user to interact with, functionality is fairly simple to add by entending the functionality of the input listener. It currently supports killing a number of active nodes, viewing the active nodes, and creating new nodes, as well as shortcuts to the below terminal commands. Usage is viewable through the 'help' command while running the script.The 
+After your machine had been properly configured, you can run the program using the `launch.py` script in the top-level of the repository. This python script creates a simple CLI for the user to interact with, functionality is fairly simple to add by entending the functionality of the input listener. It currently supports killing a number of active nodes, viewing the active nodes, and creating new nodes, as well as shortcuts to the below terminal commands. Usage is viewable through the 'help' command while running the script.The
 
 To look at the status of the nodes on the machine, open a new terminal window and use one or both of the following commands.
 - `ps aux | grep python`
@@ -30,16 +30,16 @@ To look at the status of the nodes on the machine, open a new terminal window an
 
 - ecdsa: elliptic curve cryptography resources
 - html: contains the actual website that the service uses, including a basic index.html and all the supporting files
-- ident: 
+- ident:
 - msig: sx test files for playing with multisig. folder contains README with a link for more info
 - node: contains the files that run the node on the client
  - files here handle all server interactions and communication with the outside world
-- obelisk: 
+- obelisk:
 - ppl: Contains information on each user in the market. Each other user has their own file with nickname, keypair, and description. Can launch the server with any one of them
-- pyelliptic: 
+- pyelliptic:
 - shop: Contains the files for the user's website and homepage within the marketplace, as well as the entangled node locations.
 - test: Contains code to test certain encryption functionality
-- util: Contains a single file for bitcoin keypair generation. 
+- util: Contains a single file for bitcoin keypair generation.
 
 
 ## Amazon EC2 nodes Quick Start
